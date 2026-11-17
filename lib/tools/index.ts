@@ -18,10 +18,7 @@ import base64ConverterTool from "./base64-converter";
 import jsonFormatterTool from "./json-formatter";
 import slugGeneratorTool from "./slug-generator";
 import qrCodeGeneratorTool from "./qr-code-generator";
-
-/* -------------------------------------------------------------------------- */
-/*  Per-slug metadata that the authoring shape (`Tool`) does not carry         */
-/* -------------------------------------------------------------------------- */
+import hashGeneratorTool from "./hash-generator";
 
 const CATEGORY_BY_SLUG: Record<string, CategorySlug> = {
   "word-counter": "text-tools",
@@ -106,8 +103,8 @@ const HOW_TO_BY_SLUG: Record<string, string[]> = {
     "Download the code as PNG or SVG, or copy the image.",
   ],
   "hash-generator": [
-    "Type text or drop a file of up to 600 MB.",
-    "Tick the algorithms you need.",
+    "Type text, or switch to the File tab and drop a file of up to 600 MB.",
+    "Tick the algorithms you need and pick an output format.",
     "Copy a digest, or paste an expected checksum to verify it.",
   ],
 };
@@ -117,10 +114,6 @@ const DEFAULT_HOW_TO: string[] = [
   "Adjust the options to suit your task.",
   "Copy or download the result. Everything runs in your browser.",
 ];
-
-/* -------------------------------------------------------------------------- */
-/*  Small helpers                                                              */
-/* -------------------------------------------------------------------------- */
 
 const TITLE_SEPARATOR = /\s+[–—|-]\s+/;
 
@@ -211,10 +204,6 @@ function toDefinition(tool: Tool | ToolDefinition): ToolDefinition {
   };
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Registry                                                                   */
-/* -------------------------------------------------------------------------- */
-
 const registry: Array<Tool | ToolDefinition> = [
   wordCounterTool,
   ipLookupTool,
@@ -223,6 +212,7 @@ const registry: Array<Tool | ToolDefinition> = [
   jsonFormatterTool,
   slugGeneratorTool,
   qrCodeGeneratorTool,
+  hashGeneratorTool,
 ];
 
 export const tools: ToolDefinition[] = registry.map(toDefinition);
@@ -239,12 +229,7 @@ const CATEGORY_ORDER: CategorySlug[] = [
   "seo-tools",
 ];
 
-/** A category plus the number of registered tools in it. */
 export type CategoryWithCount = Category & { count: number };
-
-/* -------------------------------------------------------------------------- */
-/*  Public API                                                                 */
-/* -------------------------------------------------------------------------- */
 
 export function getAllTools(): ToolDefinition[] {
   return tools;

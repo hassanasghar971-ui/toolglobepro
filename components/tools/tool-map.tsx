@@ -1,24 +1,25 @@
 import type { ComponentType } from "react";
-import { WordCounterTool } from "@/components/tools/WordCounterTool";
-import { IpLookupTool } from "@/components/tools/IpLookupTool";
-import { PasswordGeneratorTool } from "@/components/tools/PasswordGeneratorTool";
-import { Base64ConverterTool } from "@/components/tools/Base64ConverterTool";
-import { JsonFormatterTool } from "@/components/tools/JsonFormatterTool";
-import { SlugGeneratorTool } from "@/components/tools/SlugGeneratorTool";
-import { HashGeneratorTool } from "@/components/tools/HashGeneratorTool";
-import { QrCodeGeneratorTool } from "@/components/tools/QrCodeGeneratorTool";
 
-export const toolComponents: Record<string, ComponentType> = {
+import WordCounterTool from "./WordCounterTool";
+import IpLookupTool from "./IpLookupTool";
+import PasswordGeneratorTool from "./PasswordGeneratorTool";
+import Base64ConverterTool from "./Base64ConverterTool";
+import JsonFormatterTool from "./JsonFormatterTool";
+import SlugGeneratorTool from "./SlugGeneratorTool";
+import QrCodeGeneratorTool from "./QrCodeGeneratorTool";
+
+export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "word-counter": WordCounterTool,
   "ip-lookup": IpLookupTool,
   "password-generator": PasswordGeneratorTool,
   "base64-converter": Base64ConverterTool,
   "json-formatter": JsonFormatterTool,
   "slug-generator": SlugGeneratorTool,
-  "hash-generator": HashGeneratorTool,
   "qr-code-generator": QrCodeGeneratorTool,
 };
 
+export const toolComponents = TOOL_COMPONENTS;
+
 export function getToolComponent(slug: string): ComponentType | undefined {
-  return toolComponents[slug];
+  return TOOL_COMPONENTS[slug];
 }

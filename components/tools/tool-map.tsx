@@ -7,6 +7,7 @@ import Base64ConverterTool from "./Base64ConverterTool";
 import JsonFormatterTool from "./JsonFormatterTool";
 import SlugGeneratorTool from "./SlugGeneratorTool";
 import QrCodeGeneratorTool from "./QrCodeGeneratorTool";
+import HashGeneratorTool from "./HashGeneratorTool";
 
 export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "word-counter": WordCounterTool,
@@ -16,6 +17,7 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "json-formatter": JsonFormatterTool,
   "slug-generator": SlugGeneratorTool,
   "qr-code-generator": QrCodeGeneratorTool,
+  "hash-generator": HashGeneratorTool,
 };
 
 export const toolComponents = TOOL_COMPONENTS;

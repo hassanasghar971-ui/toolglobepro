@@ -2,16 +2,17 @@ import type { ComponentType } from "react";
 import { WordCounterTool } from "@/components/tools/WordCounterTool";
 import { IpLookupTool } from "@/components/tools/IpLookupTool";
 import { PasswordGeneratorTool } from "@/components/tools/PasswordGeneratorTool";
+import { Base64ConverterTool } from "@/components/tools/Base64ConverterTool";
+import { JsonFormatterTool } from "@/components/tools/JsonFormatterTool";
 
-/* No "use client" here: this module stays server-compatible so that
-   app/tools/[slug]/page.tsx can look a component up by slug and render it.
-   Each tool component carries its own "use client" directive. */
 export const toolComponents: Record<string, ComponentType> = {
   "word-counter": WordCounterTool,
   "ip-lookup": IpLookupTool,
   "password-generator": PasswordGeneratorTool,
+  "base64-converter": Base64ConverterTool,
+  "json-formatter":JsonFormatterTool,
 };
 
-export function getToolComponent(slug: string): ComponentType | null {
-  return toolComponents[slug] ?? null;
+export function getToolComponent(slug: string): ComponentType | undefined {
+  return toolComponents[slug];
 }

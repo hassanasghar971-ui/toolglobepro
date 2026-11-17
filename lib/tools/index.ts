@@ -5,6 +5,8 @@ import { passwordGeneratorTool } from "./password-generator";
 import { base64ConverterTool } from "./base64-converter";
 import { jsonFormatterTool } from "./json-formatter";
 import { slugGeneratorTool } from "./slug-generator";
+import { hashGeneratorTool } from "./hash-generator";
+import { qrCodeGeneratorTool } from "./qr-code-generator";
 
 export const tools: Tool[] = [
   wordCounterTool,
@@ -13,6 +15,8 @@ export const tools: Tool[] = [
   base64ConverterTool,
   jsonFormatterTool,
   slugGeneratorTool,
+  hashGeneratorTool,
+  qrCodeGeneratorTool,
 ];
 
 export function getAllTools(): Tool[] {

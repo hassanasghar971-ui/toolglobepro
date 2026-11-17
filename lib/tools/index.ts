@@ -239,6 +239,9 @@ const CATEGORY_ORDER: CategorySlug[] = [
   "seo-tools",
 ];
 
+/** A category plus the number of registered tools in it. */
+export type CategoryWithCount = Category & { count: number };
+
 /* -------------------------------------------------------------------------- */
 /*  Public API                                                                 */
 /* -------------------------------------------------------------------------- */
@@ -276,11 +279,20 @@ export function getRelatedTools(input: ToolDefinition | string, limit = 3): Tool
   return picked;
 }
 
-export function getActiveCategories(): Category[] {
-  const used = new Set<string>(tools.map((tool) => tool.category));
-  return CATEGORY_ORDER.filter((slug) => used.has(slug))
-    .map((slug) => getCategory(slug))
-    .filter((category): category is Category => Boolean(category));
+export function getActiveCategories(): CategoryWithCount[] {
+  const counts = new Map<string, number>();
+  for (const tool of tools) {
+    counts.set(tool.category, (counts.get(tool.category) ?? 0) + 1);
+  }
+
+  const result: CategoryWithCount[] = [];
+  for (const slug of CATEGORY_ORDER) {
+    const count = counts.get(slug);
+    if (!count) continue;
+    const category = getCategory(slug);
+    if (category) result.push({ ...category, count });
+  }
+  return result;
 }
 
 export function toSummary(tool: ToolDefinition): ToolSummary {

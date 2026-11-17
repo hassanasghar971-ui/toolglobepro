@@ -4,6 +4,7 @@ import { ipLookupTool } from "./ip-lookup";
 import { passwordGeneratorTool } from "./password-generator";
 import { base64ConverterTool } from "./base64-converter";
 import { jsonFormatterTool } from "./json-formatter";
+import { slugGeneratorTool } from "./slug-generator";
 
 export const tools: Tool[] = [
   wordCounterTool,
@@ -11,6 +12,7 @@ export const tools: Tool[] = [
   passwordGeneratorTool,
   base64ConverterTool,
   jsonFormatterTool,
+  slugGeneratorTool,
 ];
 
 export function getAllTools(): Tool[] {

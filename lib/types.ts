@@ -106,3 +106,28 @@ export interface ToolSummary {
   keywords: string[];
   maxFileMB?: number;
 }
+
+/** Legacy FAQ shape used by the per-tool files in lib/tools/*.ts. */
+export interface LegacyFaq {
+  question: string;
+  answer: string;
+}
+
+/**
+ * Authoring shape used by the per-tool files in lib/tools/*.ts.
+ * lib/tools/index.ts converts every `Tool` into a full `ToolDefinition`.
+ */
+export interface Tool {
+  slug: string;
+  name: string;
+  description: string;
+  category: string;
+  icon: string;
+  keywords: string[];
+  seoTitle: string;
+  seoDescription: string;
+  article: ContentSection[];
+  faqs: LegacyFaq[];
+  maxFileMB?: number;
+  related?: string[];
+}

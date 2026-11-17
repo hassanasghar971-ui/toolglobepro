@@ -1,15 +1,17 @@
-import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
+import { WordCounterTool } from "@/components/tools/WordCounterTool";
+import { IpLookupTool } from "@/components/tools/IpLookupTool";
+import { PasswordGeneratorTool } from "@/components/tools/PasswordGeneratorTool";
 
-/**
- * TOOL COMPONENT MAP: slug → interactive client component (code-split per tool).
- * Add each new tool here AND in lib/tools/index.ts.
- */
-export const TOOL_COMPONENTS: Record<string, ComponentType> = {
-  "word-counter": dynamic(() => import("./WordCounterTool")),
-  "ip-lookup": dynamic(() => import("./IpLookupTool")),
-  "password-generator": dynamic(() => import("./PasswordGeneratorTool")),
-  "base64-converter": dynamic(() => import("./Base64ConverterTool")),
-  "json-formatter": dynamic(() => import("./JsonFormatterTool")),
-  "slug-generator": dynamic(() => import("./SlugGeneratorTool")),
+/* No "use client" here: this module stays server-compatible so that
+   app/tools/[slug]/page.tsx can look a component up by slug and render it.
+   Each tool component carries its own "use client" directive. */
+export const toolComponents: Record<string, ComponentType> = {
+  "word-counter": WordCounterTool,
+  "ip-lookup": IpLookupTool,
+  "password-generator": PasswordGeneratorTool,
 };
+
+export function getToolComponent(slug: string): ComponentType | null {
+  return toolComponents[slug] ?? null;
+}

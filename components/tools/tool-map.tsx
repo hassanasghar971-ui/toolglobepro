@@ -7,4 +7,9 @@ import type { ComponentType } from "react";
  */
 export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "word-counter": dynamic(() => import("./WordCounterTool")),
+  "ip-lookup": dynamic(() => import("./IpLookupTool")),
+  "password-generator": dynamic(() => import("./PasswordGeneratorTool")),
+  "base64-converter": dynamic(() => import("./Base64ConverterTool")),
+  "json-formatter": dynamic(() => import("./JsonFormatterTool")),
+  "slug-generator": dynamic(() => import("./SlugGeneratorTool")),
 };

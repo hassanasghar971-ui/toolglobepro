@@ -8,6 +8,8 @@ import JsonFormatterTool from "./JsonFormatterTool";
 import SlugGeneratorTool from "./SlugGeneratorTool";
 import QrCodeGeneratorTool from "./QrCodeGeneratorTool";
 import HashGeneratorTool from "./HashGeneratorTool";
+import CaseConverterTool from "./CaseConverterTool";
+import ImageCompressorTool from "./ImageCompressorTool";
 
 export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "word-counter": WordCounterTool,
@@ -18,6 +20,8 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "slug-generator": SlugGeneratorTool,
   "qr-code-generator": QrCodeGeneratorTool,
   "hash-generator": HashGeneratorTool,
+  "case-converter": CaseConverterTool,
+  "image-compressor": ImageCompressorTool,
 };
 
 export const toolComponents = TOOL_COMPONENTS;

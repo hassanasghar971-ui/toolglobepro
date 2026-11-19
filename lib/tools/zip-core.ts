@@ -1,13 +1,24 @@
+/**
+ * zip-core.ts
+ * Minimal store-only (no compression) ZIP writer. Runs entirely in the browser.
+ * Images are already compressed, so "store" is the right method and keeps this
+ * tiny and fast. Output stays below 4 GB, so ZIP64 is not required.
+ */
+
+export const MAX_ZIP_BYTES = 4_000_000_000;
+export const MAX_ZIP_ENTRIES = 10_000;
+
 export interface ZipEntry {
   name: string;
   blob: Blob;
+  /** Milliseconds since epoch. Defaults to now. */
   lastModified?: number;
 }
 
-export const MAX_ZIP_BYTES = 4_000_000_000;
-export const MAX_ZIP_ENTRIES = 65_000;
+let crcTable: Uint32Array | null = null;
 
-const CRC_TABLE: Uint32Array = (() => {
+function getCrcTable(): Uint32Array {
+  if (crcTable) return crcTable;
   const table = new Uint32Array(256);
   for (let n = 0; n < 256; n++) {
     let c = n;
@@ -16,97 +27,143 @@ const CRC_TABLE: Uint32Array = (() => {
     }
     table[n] = c >>> 0;
   }
+  crcTable = table;
   return table;
-})();
+}
 
-function crcUpdate(state: number, bytes: Uint8Array): number {
-  let c = state;
-  for (let i = 0; i < bytes.length; i++) {
-    c = CRC_TABLE[(c ^ bytes[i]) & 0xff] ^ (c >>> 8);
+function crcUpdate(crc: number, data: Uint8Array): number {
+  const table = getCrcTable();
+  let c = crc;
+  for (let i = 0; i < data.length; i++) {
+    c = table[(c ^ data[i]) & 0xff] ^ (c >>> 8);
   }
   return c;
 }
 
-async function crc32OfBlob(blob: Blob): Promise<number> {
-  const CHUNK = 4 * 1024 * 1024;
-  let state = 0xffffffff;
-  for (let offset = 0; offset < blob.size; offset += CHUNK) {
-    const buffer = await blob.slice(offset, Math.min(blob.size, offset + CHUNK)).arrayBuffer();
-    state = crcUpdate(state, new Uint8Array(buffer));
+const CRC_CHUNK = 4 * 1024 * 1024;
+
+async function crcOfBlob(
+  blob: Blob,
+  onBytes: (count: number) => void,
+): Promise<number> {
+  let crc = 0xffffffff;
+  if (typeof blob.stream === "function") {
+    const reader = blob.stream().getReader();
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (value && value.length > 0) {
+        crc = crcUpdate(crc, value);
+        onBytes(value.length);
+      }
+    }
+  } else {
+    for (let offset = 0; offset < blob.size; offset += CRC_CHUNK) {
+      const slice = blob.slice(offset, Math.min(blob.size, offset + CRC_CHUNK));
+      const bytes = new Uint8Array(await slice.arrayBuffer());
+      crc = crcUpdate(crc, bytes);
+      onBytes(bytes.length);
+    }
   }
-  return (state ^ 0xffffffff) >>> 0;
+  return (crc ^ 0xffffffff) >>> 0;
 }
 
 function dosDateTime(ms: number): { time: number; date: number } {
-  const d = new Date(Number.isFinite(ms) && ms > 0 ? ms : Date.now());
-  const year = Math.max(1980, d.getFullYear());
-  const time = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
-  const date = ((year - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
-  return { time, date };
+  let d = new Date(ms);
+  if (Number.isNaN(d.getTime())) d = new Date();
+  let year = d.getFullYear();
+  if (year < 1980) year = 1980;
+  if (year > 2107) year = 2107;
+  return {
+    time: (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1),
+    date: ((year - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate(),
+  };
 }
 
-function cleanName(name: string): string {
-  const cleaned = name
-    .replace(/\\/g, "/")
-    .replace(/[\u0000-\u001f]/g, "")
-    .replace(/^\/+/, "")
+function safeName(raw: string): string {
+  let name = raw
+    .replace(/[\\/:*?"<>|\u0000-\u001f]/g, "_")
+    .replace(/^\.+/, "")
     .trim();
-  return cleaned.length > 0 ? cleaned : "file";
+  if (!name) name = "file";
+  if (name.length > 200) {
+    const dot = name.lastIndexOf(".");
+    const ext = dot > 0 && name.length - dot <= 10 ? name.slice(dot) : "";
+    name = name.slice(0, 200 - ext.length) + ext;
+  }
+  return name;
 }
 
-function uniqueName(name: string, used: Set<string>): string {
-  const base = cleanName(name);
-  if (!used.has(base.toLowerCase())) {
-    used.add(base.toLowerCase());
-    return base;
-  }
-  const dot = base.lastIndexOf(".");
-  const stem = dot > 0 ? base.slice(0, dot) : base;
-  const ext = dot > 0 ? base.slice(dot) : "";
-  let n = 2;
-  let candidate = `${stem} (${n})${ext}`;
-  while (used.has(candidate.toLowerCase())) {
-    n += 1;
-    candidate = `${stem} (${n})${ext}`;
-  }
-  used.add(candidate.toLowerCase());
-  return candidate;
+function uniqueNames(names: string[]): string[] {
+  const used = new Set<string>();
+  return names.map((raw) => {
+    const base = safeName(raw);
+    let candidate = base;
+    let counter = 2;
+    while (used.has(candidate.toLowerCase())) {
+      const dot = base.lastIndexOf(".");
+      candidate =
+        dot > 0
+          ? `${base.slice(0, dot)} (${counter})${base.slice(dot)}`
+          : `${base} (${counter})`;
+      counter++;
+    }
+    used.add(candidate.toLowerCase());
+    return candidate;
+  });
 }
 
+/**
+ * Builds a ZIP file from the given entries.
+ * onProgress receives a fraction between 0 and 1.
+ */
 export async function createZip(
   entries: ZipEntry[],
-  onProgress?: (done: number, total: number) => void,
+  onProgress?: (fraction: number) => void,
 ): Promise<Blob> {
-  if (entries.length === 0) throw new Error("There is nothing to put in the ZIP.");
-  if (entries.length > MAX_ZIP_ENTRIES) {
-    throw new Error("Too many files for one ZIP. Download them in smaller groups.");
+  if (entries.length === 0) {
+    throw new Error("There are no files to add to the ZIP.");
   }
-  const totalBytes = entries.reduce((sum, e) => sum + e.blob.size, 0);
-  if (totalBytes > MAX_ZIP_BYTES) {
-    throw new Error("The ZIP would be larger than 4 GB. Download the files individually instead.");
+  if (entries.length > MAX_ZIP_ENTRIES) {
+    throw new Error(
+      `A ZIP can hold at most ${MAX_ZIP_ENTRIES.toLocaleString()} files.`,
+    );
   }
 
+  let totalBytes = 0;
+  for (const entry of entries) totalBytes += entry.blob.size;
+  if (totalBytes > MAX_ZIP_BYTES) {
+    throw new Error(
+      "The combined size is above 4 GB, which is the limit for a single ZIP. Download the files individually instead.",
+    );
+  }
+
+  const names = uniqueNames(entries.map((e) => e.name));
   const encoder = new TextEncoder();
-  const used = new Set<string>();
-  const localParts: BlobPart[] = [];
-  const centralParts: BlobPart[] = [];
+  const body: BlobPart[] = [];
+  const central: BlobPart[] = [];
   let offset = 0;
   let centralSize = 0;
+  let processed = 0;
+  const denominator = Math.max(1, totalBytes);
 
-  for (let index = 0; index < entries.length; index++) {
-    const entry = entries[index];
-    const name = uniqueName(entry.name, used);
-    const nameBytes = encoder.encode(name);
+  for (let i = 0; i < entries.length; i++) {
+    const entry = entries[i];
     const size = entry.blob.size;
-    const crc = await crc32OfBlob(entry.blob);
+    const nameBytes = encoder.encode(names[i]);
     const { time, date } = dosDateTime(entry.lastModified ?? Date.now());
 
-    const local = new ArrayBuffer(30 + nameBytes.length);
-    const lv = new DataView(local);
+    const crc = await crcOfBlob(entry.blob, (count) => {
+      processed += count;
+      onProgress?.(Math.min(1, processed / denominator));
+    });
+
+    const local = new Uint8Array(30 + nameBytes.length);
+    const lv = new DataView(local.buffer);
     lv.setUint32(0, 0x04034b50, true);
     lv.setUint16(4, 20, true);
-    lv.setUint16(6, 0x0800, true);
-    lv.setUint16(8, 0, true);
+    lv.setUint16(6, 0x0800, true); // UTF-8 file names
+    lv.setUint16(8, 0, true); // stored
     lv.setUint16(10, time, true);
     lv.setUint16(12, date, true);
     lv.setUint32(14, crc, true);
@@ -114,10 +171,10 @@ export async function createZip(
     lv.setUint32(22, size, true);
     lv.setUint16(26, nameBytes.length, true);
     lv.setUint16(28, 0, true);
-    new Uint8Array(local, 30).set(nameBytes);
+    local.set(nameBytes, 30);
 
-    const central = new ArrayBuffer(46 + nameBytes.length);
-    const cv = new DataView(central);
+    const header = new Uint8Array(46 + nameBytes.length);
+    const cv = new DataView(header.buffer);
     cv.setUint32(0, 0x02014b50, true);
     cv.setUint16(4, 20, true);
     cv.setUint16(6, 20, true);
@@ -135,17 +192,20 @@ export async function createZip(
     cv.setUint16(36, 0, true);
     cv.setUint32(38, 0, true);
     cv.setUint32(42, offset, true);
-    new Uint8Array(central, 46).set(nameBytes);
+    header.set(nameBytes, 46);
 
-    localParts.push(local, entry.blob);
-    centralParts.push(central);
-    offset += local.byteLength + size;
-    centralSize += central.byteLength;
-    onProgress?.(index + 1, entries.length);
+    body.push(local, entry.blob);
+    central.push(header);
+    centralSize += header.length;
+    offset += local.length + size;
+
+    if (offset > MAX_ZIP_BYTES) {
+      throw new Error("The ZIP would be larger than 4 GB. Download the files individually instead.");
+    }
   }
 
-  const end = new ArrayBuffer(22);
-  const ev = new DataView(end);
+  const end = new Uint8Array(22);
+  const ev = new DataView(end.buffer);
   ev.setUint32(0, 0x06054b50, true);
   ev.setUint16(4, 0, true);
   ev.setUint16(6, 0, true);
@@ -155,5 +215,6 @@ export async function createZip(
   ev.setUint32(16, offset, true);
   ev.setUint16(20, 0, true);
 
-  return new Blob([...localParts, ...centralParts, end], { type: "application/zip" });
+  onProgress?.(1);
+  return new Blob([...body, ...central, end], { type: "application/zip" });
 }

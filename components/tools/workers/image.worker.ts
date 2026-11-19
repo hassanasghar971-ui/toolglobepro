@@ -1,39 +1,32 @@
+/// <reference lib="webworker" />
 import {
+  CanvasUnavailableError,
   compressImage,
   type ImageWorkerRequest,
   type ImageWorkerResponse,
 } from "../../../lib/tools/image-core";
 
-interface WorkerScope {
+const scope = self as unknown as {
   postMessage(message: ImageWorkerResponse): void;
   onmessage: ((event: MessageEvent<ImageWorkerRequest>) => void) | null;
-}
-
-const scope = self as unknown as WorkerScope;
+};
 
 scope.onmessage = async (event: MessageEvent<ImageWorkerRequest>) => {
-  const { id, file, options } = event.data;
-
-  if (typeof OffscreenCanvas === "undefined" || typeof createImageBitmap !== "function") {
-    scope.postMessage({
-      id,
-      type: "error",
-      unsupported: true,
-      message: "This browser cannot process images inside a worker.",
-    });
-    return;
-  }
-
+  const { id, file, inputType, settings } = event.data;
   try {
-    const result = await compressImage(file, options, (stage) => {
-      scope.postMessage({ id, type: "stage", stage });
+    const result = await compressImage(file, inputType, settings, (stage) => {
+      scope.postMessage({ kind: "stage", id, stage });
     });
-    scope.postMessage({ id, type: "done", result });
+    scope.postMessage({ kind: "result", id, result });
   } catch (error) {
-    scope.postMessage({
-      id,
-      type: "error",
-      message: error instanceof Error ? error.message : "Image processing failed.",
-    });
+    if (error instanceof CanvasUnavailableError) {
+      scope.postMessage({ kind: "error", id, message: error.message, code: "unsupported" });
+      return;
+    }
+    const message =
+      error instanceof Error && error.message
+        ? error.message
+        : "The image could not be processed.";
+    scope.postMessage({ kind: "error", id, message, code: "failed" });
   }
 };

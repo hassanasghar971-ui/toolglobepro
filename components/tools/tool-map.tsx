@@ -13,6 +13,8 @@ import ImageCompressorTool from "./ImageCompressorTool";
 import TextDiffCheckerTool from "./TextDiffCheckerTool";
 import LoremIpsumGeneratorTool from "./LoremIpsumGeneratorTool";
 import ColorConverterTool from "./ColorConverterTool";
+import UnitConverterTool from "./UnitConverterTool";
+import TimestampConverterTool from "./TimestampConverterTool";
 
 export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "word-counter": WordCounterTool,
@@ -28,6 +30,8 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "text-diff-checker": TextDiffCheckerTool,
   "lorem-ipsum-generator": LoremIpsumGeneratorTool,
   "color-converter": ColorConverterTool,
+  "unit-converter": UnitConverterTool,
+  "timestamp-converter": TimestampConverterTool,
 };
 
 export const toolComponents = TOOL_COMPONENTS;

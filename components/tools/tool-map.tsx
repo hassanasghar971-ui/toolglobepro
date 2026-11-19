@@ -10,6 +10,9 @@ import QrCodeGeneratorTool from "./QrCodeGeneratorTool";
 import HashGeneratorTool from "./HashGeneratorTool";
 import CaseConverterTool from "./CaseConverterTool";
 import ImageCompressorTool from "./ImageCompressorTool";
+import TextDiffCheckerTool from "./TextDiffCheckerTool";
+import LoremIpsumGeneratorTool from "./LoremIpsumGeneratorTool";
+import ColorConverterTool from "./ColorConverterTool";
 
 export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "word-counter": WordCounterTool,
@@ -22,6 +25,9 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "hash-generator": HashGeneratorTool,
   "case-converter": CaseConverterTool,
   "image-compressor": ImageCompressorTool,
+  "text-diff-checker": TextDiffCheckerTool,
+  "lorem-ipsum-generator": LoremIpsumGeneratorTool,
+  "color-converter": ColorConverterTool,
 };
 
 export const toolComponents = TOOL_COMPONENTS;

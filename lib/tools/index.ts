@@ -19,6 +19,9 @@ import qrCodeGenerator from "./qr-code-generator";
 import hashGenerator from "./hash-generator";
 import caseConverter from "./case-converter";
 import imageCompressor from "./image-compressor";
+import textDiffChecker from "./text-diff-checker";
+import loremIpsumGenerator from "./lorem-ipsum-generator";
+import colorConverter from "./color-converter";
 
 export type CategoryWithCount = Category & { count: number };
 
@@ -33,12 +36,15 @@ const CATEGORY_ORDER: CategorySlug[] = [
 const CATEGORY_BY_SLUG: Record<string, CategorySlug> = {
   "word-counter": "text-tools",
   "case-converter": "text-tools",
+  "text-diff-checker": "text-tools",
+  "lorem-ipsum-generator": "text-tools",
   "ip-lookup": "network-tools",
   "password-generator": "security-tools",
   "hash-generator": "security-tools",
   "base64-converter": "developer-tools",
   "json-formatter": "developer-tools",
   "qr-code-generator": "developer-tools",
+  "color-converter": "developer-tools",
   "slug-generator": "seo-tools",
   "image-compressor": "seo-tools",
 };
@@ -67,12 +73,15 @@ const VALID_ICONS: ReadonlySet<string> = new Set([
 const ICON_BY_SLUG: Record<string, IconName> = {
   "word-counter": "type",
   "case-converter": "file-text",
+  "text-diff-checker": "eye",
+  "lorem-ipsum-generator": "message",
   "ip-lookup": "globe",
   "password-generator": "key",
   "hash-generator": "hash",
   "base64-converter": "refresh",
   "json-formatter": "braces",
   "qr-code-generator": "zap",
+  "color-converter": "sparkles",
   "slug-generator": "link",
   "image-compressor": "sparkles",
 };
@@ -84,6 +93,8 @@ const MAX_FILE_MB_BY_SLUG: Record<string, number> = {
   "hash-generator": 600,
   "image-compressor": 600,
   "case-converter": 10,
+  "text-diff-checker": 20,
+  "color-converter": 5,
 };
 
 const DEFAULT_HOW_TO: string[] = [
@@ -153,6 +164,24 @@ const HOW_TO_BY_SLUG: Record<string, string[]> = {
     "Pick the output format, quality and maximum width.",
     "Watch each file compress and compare the before and after sizes.",
     "Download single images or everything as a ZIP.",
+  ],
+  "text-diff-checker": [
+    "Paste the original text on the left and the changed text on the right, or drop a file on either box.",
+    "Choose to compare by lines, words or characters, and set the ignore options.",
+    "Read the highlighted additions and removals in unified or side-by-side view.",
+    "Copy the result or download it as a .diff file.",
+  ],
+  "lorem-ipsum-generator": [
+    "Choose paragraphs, sentences or words and enter how many you need.",
+    "Pick plain text, HTML paragraphs or an HTML list.",
+    "Press Regenerate for a new variation.",
+    "Copy the text or download it as a file.",
+  ],
+  "color-converter": [
+    "Type a colour in any format, use the picker, or sample one from your screen.",
+    "Copy the HEX, RGB, HSL, HSV, HWB, CMYK or OKLCH value you need.",
+    "Check the contrast ratio and explore tints, shades and palettes.",
+    "Paste CSS into the bulk converter to convert many colours at once.",
   ],
 };
 
@@ -244,6 +273,9 @@ const SOURCE_TOOLS: Tool[] = [
   hashGenerator,
   caseConverter,
   imageCompressor,
+  textDiffChecker,
+  loremIpsumGenerator,
+  colorConverter,
 ];
 
 export const tools: ToolDefinition[] = SOURCE_TOOLS.map(adapt);

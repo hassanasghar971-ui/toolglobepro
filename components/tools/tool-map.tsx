@@ -15,8 +15,13 @@ import LoremIpsumGeneratorTool from "./LoremIpsumGeneratorTool";
 import ColorConverterTool from "./ColorConverterTool";
 import UnitConverterTool from "./UnitConverterTool";
 import TimestampConverterTool from "./TimestampConverterTool";
+import MarkdownPreviewerTool from "./MarkdownPreviewerTool";
+import CsvToJsonTool from "./CsvToJsonTool";
+import UrlEncoderDecoderTool from "./UrlEncoderDecoderTool";
 
-export const TOOL_COMPONENTS: Record<string, ComponentType> = {
+export type ToolComponent = ComponentType<Record<string, unknown>>;
+
+export const TOOL_MAP: Record<string, ToolComponent> = {
   "word-counter": WordCounterTool,
   "ip-lookup": IpLookupTool,
   "password-generator": PasswordGeneratorTool,
@@ -32,10 +37,15 @@ export const TOOL_COMPONENTS: Record<string, ComponentType> = {
   "color-converter": ColorConverterTool,
   "unit-converter": UnitConverterTool,
   "timestamp-converter": TimestampConverterTool,
+  "markdown-previewer": MarkdownPreviewerTool,
+  "csv-to-json": CsvToJsonTool,
+  "url-encoder-decoder": UrlEncoderDecoderTool,
 };
 
-export const toolComponents = TOOL_COMPONENTS;
+export const toolComponents = TOOL_MAP;
 
-export function getToolComponent(slug: string): ComponentType | undefined {
-  return TOOL_COMPONENTS[slug];
+export function getToolComponent(slug: string): ToolComponent | undefined {
+  return TOOL_MAP[slug];
 }
+
+export default TOOL_MAP;

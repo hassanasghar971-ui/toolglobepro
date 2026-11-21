@@ -57,7 +57,9 @@ export const metadata: Metadata = {
     images: ["/opengraph-image"],
   },
   verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
+    google:
+      process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ||
+      "pwyfdDe7eDVI1cMvuebKjXMzJ6kFspOCtUPX7aDskuI",
   },
 };
 
@@ -71,6 +73,7 @@ export const viewport: Viewport = {
   ],
 };
 
+// Runs before first paint so there is no light/dark flash.
 const themeInitScript = `(function(){try{var t=localStorage.getItem('tgp-theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

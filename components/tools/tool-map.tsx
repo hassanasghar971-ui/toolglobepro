@@ -21,7 +21,7 @@ import UrlEncoderDecoderTool from "./UrlEncoderDecoderTool";
 
 export type ToolComponent = ComponentType<Record<string, unknown>>;
 
-export const TOOL_MAP: Record<string, ToolComponent> = {
+export const TOOL_COMPONENTS: Record<string, ToolComponent> = {
   "word-counter": WordCounterTool,
   "ip-lookup": IpLookupTool,
   "password-generator": PasswordGeneratorTool,
@@ -42,10 +42,11 @@ export const TOOL_MAP: Record<string, ToolComponent> = {
   "url-encoder-decoder": UrlEncoderDecoderTool,
 };
 
-export const toolComponents = TOOL_MAP;
+export const TOOL_MAP = TOOL_COMPONENTS;
+export const toolComponents = TOOL_COMPONENTS;
 
 export function getToolComponent(slug: string): ToolComponent | undefined {
-  return TOOL_MAP[slug];
+  return TOOL_COMPONENTS[slug];
 }
 
-export default TOOL_MAP;
+export default TOOL_COMPONENTS;

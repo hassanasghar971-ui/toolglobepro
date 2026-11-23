@@ -1,19 +1,453 @@
-import type { FaqItem, ToolDefinition } from "@/lib/types";
-import wordCounter from "./word-counter";
-import ipLookup from "./ip-lookup";
-import passwordGenerator from "./password-generator";
-import base64Converter from "./base64-converter";
-import jsonFormatter from "./json-formatter";
-import slugGenerator from "./slug-generator";
-import qrCodeGenerator from "./qr-code-generator";
-import hashGenerator from "./hash-generator";
-import caseConverter from "./case-converter";
-import imageCompressor from "./image-compressor";
-import textDiffChecker from "./text-diff-checker";
-import loremIpsumGenerator from "./lorem-ipsum-generator";
-import colorConverter from "./color-converter";
-import unitConverter from "./unit-converter";
-import timestampConverter from "./timestamp-converter";
-import markdownPreviewer from "./markdown-previewer";
-import csvToJson from "./csv-to-json";
-import urlEncoderDecoder from "./url-encoder-decoder";
+import type {
+  Category,
+  CategorySlug,
+  ContentSection,
+  FaqItem,
+  IconName,
+  ToolDefinition,
+  ToolSummary,
+} from "@/lib/types";
+import { getCategory } from "@/lib/categories";
+import { LEGAL_UPDATED_ISO } from "@/lib/site";
+
+import wordCounterTool from "./word-counter";
+import ipLookupTool from "./ip-lookup";
+import passwordGeneratorTool from "./password-generator";
+import base64ConverterTool from "./base64-converter";
+import jsonFormatterTool from "./json-formatter";
+import slugGeneratorTool from "./slug-generator";
+import qrCodeGeneratorTool from "./qr-code-generator";
+import hashGeneratorTool from "./hash-generator";
+import caseConverterTool from "./case-converter";
+import imageCompressorTool from "./image-compressor";
+import textDiffCheckerTool from "./text-diff-checker";
+import loremIpsumGeneratorTool from "./lorem-ipsum-generator";
+import colorConverterTool from "./color-converter";
+import unitConverterTool from "./unit-converter";
+import timestampConverterTool from "./timestamp-converter";
+import markdownPreviewerTool from "./markdown-previewer";
+import csvToJsonTool from "./csv-to-json";
+import urlEncoderDecoderTool from "./url-encoder-decoder";
+
+export type CategoryWithCount = Category & { count: number };
+
+interface LooseFaq {
+  q?: string;
+  a?: string;
+  question?: string;
+  answer?: string;
+}
+
+interface LooseTool {
+  slug: string;
+  name: string;
+  description?: string;
+  tagline?: string;
+  category?: string;
+  icon?: string;
+  keywords?: string[];
+  seoTitle?: string;
+  metaTitle?: string;
+  seoDescription?: string;
+  metaDescription?: string;
+  article?: ContentSection[];
+  faqs?: LooseFaq[];
+  maxFileMB?: number;
+  related?: string[];
+}
+
+const RAW_TOOLS = [
+  wordCounterTool,
+  ipLookupTool,
+  passwordGeneratorTool,
+  base64ConverterTool,
+  jsonFormatterTool,
+  slugGeneratorTool,
+  qrCodeGeneratorTool,
+  hashGeneratorTool,
+  caseConverterTool,
+  imageCompressorTool,
+  textDiffCheckerTool,
+  loremIpsumGeneratorTool,
+  colorConverterTool,
+  unitConverterTool,
+  timestampConverterTool,
+  markdownPreviewerTool,
+  csvToJsonTool,
+  urlEncoderDecoderTool,
+] as unknown as LooseTool[];
+
+const CATEGORY_ORDER: CategorySlug[] = [
+  "text-tools",
+  "developer-tools",
+  "security-tools",
+  "network-tools",
+  "seo-tools",
+];
+
+const CATEGORY_BY_SLUG: Record<string, CategorySlug> = {
+  "word-counter": "text-tools",
+  "ip-lookup": "network-tools",
+  "password-generator": "security-tools",
+  "base64-converter": "developer-tools",
+  "json-formatter": "developer-tools",
+  "slug-generator": "seo-tools",
+  "qr-code-generator": "developer-tools",
+  "hash-generator": "security-tools",
+  "case-converter": "text-tools",
+  "image-compressor": "seo-tools",
+  "text-diff-checker": "text-tools",
+  "lorem-ipsum-generator": "text-tools",
+  "color-converter": "developer-tools",
+  "unit-converter": "developer-tools",
+  "timestamp-converter": "developer-tools",
+  "markdown-previewer": "developer-tools",
+  "csv-to-json": "developer-tools",
+  "url-encoder-decoder": "developer-tools",
+};
+
+const CATEGORY_ALIASES: Record<string, CategorySlug> = {
+  text: "text-tools",
+  "text-tools": "text-tools",
+  developer: "developer-tools",
+  "developer-tools": "developer-tools",
+  converters: "developer-tools",
+  data: "developer-tools",
+  security: "security-tools",
+  "security-tools": "security-tools",
+  network: "network-tools",
+  "network-tools": "network-tools",
+  seo: "seo-tools",
+  "seo-tools": "seo-tools",
+};
+
+const VALID_ICONS = new Set<string>([
+  "search",
+  "sun",
+  "moon",
+  "menu",
+  "x",
+  "chevron-down",
+  "chevron-right",
+  "arrow-right",
+  "type",
+  "code",
+  "shield",
+  "globe",
+  "link",
+  "key",
+  "braces",
+  "file-text",
+  "upload",
+  "download",
+  "copy",
+  "check",
+  "alert",
+  "mail",
+  "message",
+  "home",
+  "sparkles",
+  "zap",
+  "lock",
+  "clock",
+  "hash",
+  "refresh",
+  "trash",
+  "map-pin",
+  "external",
+  "eye",
+  "trending-up",
+  "info",
+]);
+
+const ICON_BY_SLUG: Record<string, IconName> = {
+  "word-counter": "type",
+  "ip-lookup": "globe",
+  "password-generator": "key",
+  "base64-converter": "refresh",
+  "json-formatter": "braces",
+  "slug-generator": "link",
+  "qr-code-generator": "zap",
+  "hash-generator": "hash",
+  "case-converter": "file-text",
+  "image-compressor": "sparkles",
+  "text-diff-checker": "eye",
+  "lorem-ipsum-generator": "message",
+  "color-converter": "sparkles",
+  "unit-converter": "trending-up",
+  "timestamp-converter": "clock",
+  "markdown-previewer": "file-text",
+  "csv-to-json": "braces",
+  "url-encoder-decoder": "link",
+};
+
+const MAX_FILE_MB_BY_SLUG: Record<string, number> = {
+  "word-counter": 600,
+  "base64-converter": 600,
+  "json-formatter": 600,
+  "hash-generator": 600,
+  "case-converter": 10,
+  "image-compressor": 600,
+  "text-diff-checker": 20,
+  "color-converter": 5,
+  "markdown-previewer": 10,
+  "csv-to-json": 600,
+};
+
+const DEFAULT_HOW_TO: string[] = [
+  "Open the tool and enter your input or drop a file.",
+  "Adjust the options if you need to.",
+  "Copy the result or download it. Nothing leaves your browser.",
+];
+
+const HOW_TO_BY_SLUG: Record<string, string[]> = {
+  "word-counter": [
+    "Type or paste your text, or drop a text file onto the page.",
+    "Watch words, characters, sentences, paragraphs and reading time update live.",
+    "Check the keyword density list, then copy your stats or clear the box.",
+  ],
+  "ip-lookup": [
+    "Open the tool to see your public IP address and approximate location.",
+    "Type any IPv4 or IPv6 address to look it up instead.",
+    "Copy the details or open the location on a map.",
+  ],
+  "password-generator": [
+    "Choose a length and the character types you want.",
+    "Or switch to passphrase mode for easy-to-remember words.",
+    "Press Generate, then copy the password. It is created on your device.",
+  ],
+  "base64-converter": [
+    "Choose Encode or Decode.",
+    "Paste text or drop a file of up to 600 MB.",
+    "Set URL-safe, padding and line-wrap options, then copy or download the result.",
+  ],
+  "json-formatter": [
+    "Paste your JSON or drop a .json file.",
+    "Pick Format, Minify or Validate, and choose the indent size.",
+    "Fix any error shown with its line and column, then copy or download.",
+  ],
+  "slug-generator": [
+    "Type a title or paste a list of titles, one per line.",
+    "Choose the separator, stop-word and length options.",
+    "Copy the URL-friendly slugs or export them as CSV.",
+  ],
+  "qr-code-generator": [
+    "Pick a content type such as URL, Wi-Fi, vCard or plain text.",
+    "Enter your details and choose the error-correction level.",
+    "Download the QR code as PNG or SVG, or copy the image.",
+  ],
+  "hash-generator": [
+    "Type text or drop a file of up to 600 MB.",
+    "Tick the algorithms you want: MD5, SHA-1, SHA-256 or SHA-512.",
+    "Copy a digest, or paste a known hash to check it matches.",
+  ],
+  "case-converter": [
+    "Paste your text or drop a text file.",
+    "Click a case such as UPPER, Title, camelCase or snake_case.",
+    "Copy the result or download it as a .txt file.",
+  ],
+  "image-compressor": [
+    "Drop up to 200 images onto the page.",
+    "Set the quality, output format and maximum size.",
+    "Download each image, or everything together as a ZIP.",
+  ],
+  "text-diff-checker": [
+    "Paste the original text on the left and the changed text on the right.",
+    "Choose line or word mode and the view you prefer.",
+    "Review the highlighted changes, or export a unified diff.",
+  ],
+  "lorem-ipsum-generator": [
+    "Choose paragraphs, sentences or words and set the amount.",
+    "Pick plain text, HTML or list output.",
+    "Copy the placeholder text or generate a fresh batch.",
+  ],
+  "color-converter": [
+    "Type a colour in any format or use the picker.",
+    "Read the HEX, RGB, HSL, HSV, HWB, CMYK and OKLCH values.",
+    "Copy a value, check contrast, or convert a block of CSS.",
+  ],
+  "unit-converter": [
+    "Choose a category such as length, weight or temperature.",
+    "Enter a value and pick the from and to units.",
+    "Copy the result or any row from the all-units table.",
+  ],
+  "timestamp-converter": [
+    "Paste a Unix timestamp, or type a date to convert.",
+    "Pick a time zone and the timestamp unit.",
+    "Copy any format, or paste a list into the batch box.",
+  ],
+  "markdown-previewer": [
+    "Write or paste Markdown on the left or open a .md file.",
+    "Inspect the live rendered preview or switch to the HTML tab.",
+    "Copy the HTML fragment or download a standalone .html or .md file.",
+  ],
+  "csv-to-json": [
+    "Paste CSV text or upload a CSV/TSV file up to 600 MB.",
+    "Select delimiter, output format, layout, and typing options.",
+    "Convert in the background worker, then copy or download the JSON.",
+  ],
+  "url-encoder-decoder": [
+    "Choose Encode, Decode, or the URL Parser tab.",
+    "Select the encoding method or decoding options.",
+    "Copy the output or inspect parsed URL parts and query parameters.",
+  ],
+};
+
+function featuresFor(maxFileMB?: number): string[] {
+  const features = [
+    "100% free with no sign-up",
+    "Runs entirely in your browser",
+    "Your data is never uploaded",
+    "Works on desktop and mobile",
+  ];
+  if (maxFileMB && maxFileMB >= 100) {
+    features.push(
+      `Handles files up to ${maxFileMB} MB`,
+      "Drag and drop with live progress",
+      "Instant download",
+    );
+  } else if (maxFileMB) {
+    features.push(`Handles text files up to ${maxFileMB} MB`, "Instant copy and download");
+  } else {
+    features.push("Instant results", "Copy with one click");
+  }
+  return features;
+}
+
+function clipAtWord(text: string, max: number, ellipsis: boolean): string {
+  const clean = text.replace(/\s+/g, " ").trim();
+  if (clean.length <= max) return clean;
+  const limit = ellipsis ? max - 1 : max;
+  let cut = clean.slice(0, limit);
+  const lastSpace = cut.lastIndexOf(" ");
+  if (lastSpace > limit * 0.6) cut = cut.slice(0, lastSpace);
+  cut = cut.replace(/[\s,;:.\-–—]+$/, "");
+  return ellipsis ? `${cut}…` : cut;
+}
+
+function deriveMetaTitle(seoTitle: string | undefined, name: string): string {
+  if (seoTitle) {
+    const head = seoTitle.split(/\s[–—|-]\s/)[0].trim();
+    if (head && head.length <= 44) return head;
+  }
+  return clipAtWord(name, 44, false);
+}
+
+function toFaqs(faqs: LooseFaq[] | undefined): FaqItem[] {
+  const out: FaqItem[] = [];
+  for (const faq of faqs ?? []) {
+    const q = faq.q ?? faq.question ?? "";
+    const a = faq.a ?? faq.answer ?? "";
+    if (q && a) out.push({ q, a });
+  }
+  return out;
+}
+
+function splitArticle(article: ContentSection[] | undefined): {
+  intro: string;
+  sections: ContentSection[];
+} {
+  const source = (article ?? []).map((section) => ({
+    heading: section.heading,
+    paragraphs: [...section.paragraphs],
+  }));
+  let intro = "";
+  if (source.length > 0 && source[0].paragraphs.length > 0) {
+    intro = source[0].paragraphs.shift() ?? "";
+  }
+  return { intro, sections: source.filter((section) => section.paragraphs.length > 0) };
+}
+
+function adapt(raw: LooseTool): ToolDefinition {
+  const slug = raw.slug;
+  const category: CategorySlug =
+    CATEGORY_BY_SLUG[slug] ?? CATEGORY_ALIASES[raw.category ?? ""] ?? "text-tools";
+  const icon: IconName =
+    ICON_BY_SLUG[slug] ??
+    ((raw.icon && VALID_ICONS.has(raw.icon) ? raw.icon : "sparkles") as IconName);
+  const maxFileMB = MAX_FILE_MB_BY_SLUG[slug] ?? raw.maxFileMB;
+  const { intro, sections } = splitArticle(raw.article);
+  const description = raw.description ?? raw.tagline ?? raw.name;
+
+  const definition: ToolDefinition = {
+    slug,
+    name: raw.name,
+    h1: `Free ${raw.name} Online`,
+    tagline: description,
+    metaTitle: deriveMetaTitle(raw.seoTitle ?? raw.metaTitle, raw.name),
+    metaDescription: clipAtWord(raw.seoDescription ?? raw.metaDescription ?? description, 160, true),
+    category,
+    icon,
+    keywords: raw.keywords ?? [],
+    intro: intro || description,
+    howTo: HOW_TO_BY_SLUG[slug] ?? DEFAULT_HOW_TO,
+    sections,
+    faqs: toFaqs(raw.faqs),
+    features: featuresFor(maxFileMB),
+    schemaType: "WebApplication",
+    related: raw.related,
+    datePublished: LEGAL_UPDATED_ISO,
+    dateModified: LEGAL_UPDATED_ISO,
+  };
+  if (maxFileMB !== undefined) definition.maxFileMB = maxFileMB;
+  return definition;
+}
+
+export const tools: ToolDefinition[] = RAW_TOOLS.map(adapt);
+
+export function getAllTools(): ToolDefinition[] {
+  return tools;
+}
+
+export function getToolBySlug(slug: string): ToolDefinition | undefined {
+  return tools.find((tool) => tool.slug === slug);
+}
+
+export function getToolsByCategory(slug: string): ToolDefinition[] {
+  return tools.filter((tool) => tool.category === slug);
+}
+
+export function getRelatedTools(
+  toolOrSlug: ToolDefinition | string,
+  limit = 3,
+): ToolDefinition[] {
+  const tool = typeof toolOrSlug === "string" ? getToolBySlug(toolOrSlug) : toolOrSlug;
+  if (!tool) return [];
+  const picked: ToolDefinition[] = [];
+  const seen = new Set<string>([tool.slug]);
+  const add = (candidate: ToolDefinition | undefined) => {
+    if (candidate && !seen.has(candidate.slug) && picked.length < limit) {
+      seen.add(candidate.slug);
+      picked.push(candidate);
+    }
+  };
+  (tool.related ?? []).forEach((slug) => add(getToolBySlug(slug)));
+  tools.filter((t) => t.category === tool.category).forEach(add);
+  tools.forEach(add);
+  return picked;
+}
+
+export function getActiveCategories(): CategoryWithCount[] {
+  const result: CategoryWithCount[] = [];
+  for (const slug of CATEGORY_ORDER) {
+    const category = getCategory(slug);
+    if (!category) continue;
+    const count = getToolsByCategory(slug).length;
+    if (count > 0) result.push({ ...category, count });
+  }
+  return result;
+}
+
+export function toSummary(tool: ToolDefinition): ToolSummary {
+  const summary: ToolSummary = {
+    slug: tool.slug,
+    name: tool.name,
+    tagline: tool.tagline,
+    category: tool.category,
+    categoryName: getCategory(tool.category)?.name ?? tool.category,
+    icon: tool.icon,
+    keywords: tool.keywords,
+  };
+  if (tool.maxFileMB !== undefined) summary.maxFileMB = tool.maxFileMB;
+  return summary;
+}

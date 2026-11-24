@@ -25,9 +25,6 @@ import loremIpsumGeneratorTool from "./lorem-ipsum-generator";
 import colorConverterTool from "./color-converter";
 import unitConverterTool from "./unit-converter";
 import timestampConverterTool from "./timestamp-converter";
-import markdownPreviewerTool from "./markdown-previewer";
-import csvToJsonTool from "./csv-to-json";
-import urlEncoderDecoderTool from "./url-encoder-decoder";
 
 export type CategoryWithCount = Category & { count: number };
 
@@ -72,9 +69,6 @@ const RAW_TOOLS = [
   colorConverterTool,
   unitConverterTool,
   timestampConverterTool,
-  markdownPreviewerTool,
-  csvToJsonTool,
-  urlEncoderDecoderTool,
 ] as unknown as LooseTool[];
 
 const CATEGORY_ORDER: CategorySlug[] = [
@@ -101,9 +95,6 @@ const CATEGORY_BY_SLUG: Record<string, CategorySlug> = {
   "color-converter": "developer-tools",
   "unit-converter": "developer-tools",
   "timestamp-converter": "developer-tools",
-  "markdown-previewer": "developer-tools",
-  "csv-to-json": "developer-tools",
-  "url-encoder-decoder": "developer-tools",
 };
 
 const CATEGORY_ALIASES: Record<string, CategorySlug> = {
@@ -112,7 +103,6 @@ const CATEGORY_ALIASES: Record<string, CategorySlug> = {
   developer: "developer-tools",
   "developer-tools": "developer-tools",
   converters: "developer-tools",
-  data: "developer-tools",
   security: "security-tools",
   "security-tools": "security-tools",
   network: "network-tools",
@@ -176,9 +166,6 @@ const ICON_BY_SLUG: Record<string, IconName> = {
   "color-converter": "sparkles",
   "unit-converter": "trending-up",
   "timestamp-converter": "clock",
-  "markdown-previewer": "file-text",
-  "csv-to-json": "braces",
-  "url-encoder-decoder": "link",
 };
 
 const MAX_FILE_MB_BY_SLUG: Record<string, number> = {
@@ -190,8 +177,6 @@ const MAX_FILE_MB_BY_SLUG: Record<string, number> = {
   "image-compressor": 600,
   "text-diff-checker": 20,
   "color-converter": 5,
-  "markdown-previewer": 10,
-  "csv-to-json": 600,
 };
 
 const DEFAULT_HOW_TO: string[] = [
@@ -275,21 +260,6 @@ const HOW_TO_BY_SLUG: Record<string, string[]> = {
     "Paste a Unix timestamp, or type a date to convert.",
     "Pick a time zone and the timestamp unit.",
     "Copy any format, or paste a list into the batch box.",
-  ],
-  "markdown-previewer": [
-    "Write or paste Markdown on the left or open a .md file.",
-    "Inspect the live rendered preview or switch to the HTML tab.",
-    "Copy the HTML fragment or download a standalone .html or .md file.",
-  ],
-  "csv-to-json": [
-    "Paste CSV text or upload a CSV/TSV file up to 600 MB.",
-    "Select delimiter, output format, layout, and typing options.",
-    "Convert in the background worker, then copy or download the JSON.",
-  ],
-  "url-encoder-decoder": [
-    "Choose Encode, Decode, or the URL Parser tab.",
-    "Select the encoding method or decoding options.",
-    "Copy the output or inspect parsed URL parts and query parameters.",
   ],
 };
 

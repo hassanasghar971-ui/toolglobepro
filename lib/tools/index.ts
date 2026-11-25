@@ -25,6 +25,7 @@ import loremIpsumGeneratorTool from "./lorem-ipsum-generator";
 import colorConverterTool from "./color-converter";
 import unitConverterTool from "./unit-converter";
 import timestampConverterTool from "./timestamp-converter";
+import markdownPreviewerTool from "./markdown-previewer";
 
 export type CategoryWithCount = Category & { count: number };
 
@@ -69,6 +70,7 @@ const RAW_TOOLS = [
   colorConverterTool,
   unitConverterTool,
   timestampConverterTool,
+  markdownPreviewerTool,
 ] as unknown as LooseTool[];
 
 const CATEGORY_ORDER: CategorySlug[] = [
@@ -95,6 +97,7 @@ const CATEGORY_BY_SLUG: Record<string, CategorySlug> = {
   "color-converter": "developer-tools",
   "unit-converter": "developer-tools",
   "timestamp-converter": "developer-tools",
+  "markdown-previewer": "developer-tools",
 };
 
 const CATEGORY_ALIASES: Record<string, CategorySlug> = {
@@ -166,6 +169,7 @@ const ICON_BY_SLUG: Record<string, IconName> = {
   "color-converter": "sparkles",
   "unit-converter": "trending-up",
   "timestamp-converter": "clock",
+  "markdown-previewer": "file-text",
 };
 
 const MAX_FILE_MB_BY_SLUG: Record<string, number> = {
@@ -177,6 +181,7 @@ const MAX_FILE_MB_BY_SLUG: Record<string, number> = {
   "image-compressor": 600,
   "text-diff-checker": 20,
   "color-converter": 5,
+  "markdown-previewer": 600,
 };
 
 const DEFAULT_HOW_TO: string[] = [
@@ -260,6 +265,11 @@ const HOW_TO_BY_SLUG: Record<string, string[]> = {
     "Paste a Unix timestamp, or type a date to convert.",
     "Pick a time zone and the timestamp unit.",
     "Copy any format, or paste a list into the batch box.",
+  ],
+  "markdown-previewer": [
+    "Type or paste Markdown on the left, or open a .md or .txt file.",
+    "Switch between Split, Editor and Preview, or jump via the heading outline.",
+    "Copy HTML or download standalone .html or .md files safely in your browser.",
   ],
 };
 

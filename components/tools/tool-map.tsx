@@ -16,6 +16,8 @@ import ColorConverterTool from "./ColorConverterTool";
 import UnitConverterTool from "./UnitConverterTool";
 import TimestampConverterTool from "./TimestampConverterTool";
 import MarkdownPreviewerTool from "./MarkdownPreviewerTool";
+import CsvToJsonTool from "./CsvToJsonTool";
+import UrlEncoderDecoderTool from "./UrlEncoderDecoderTool";
 
 export type ToolComponent = ComponentType<Record<string, unknown>>;
 
@@ -36,6 +38,8 @@ export const TOOL_MAP: Record<string, ToolComponent> = {
   "unit-converter": UnitConverterTool,
   "timestamp-converter": TimestampConverterTool,
   "markdown-previewer": MarkdownPreviewerTool,
+  "csv-to-json": CsvToJsonTool,
+  "url-encoder-decoder": UrlEncoderDecoderTool,
 };
 
 export const toolComponents = TOOL_MAP;

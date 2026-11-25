@@ -26,6 +26,8 @@ import colorConverterTool from "./color-converter";
 import unitConverterTool from "./unit-converter";
 import timestampConverterTool from "./timestamp-converter";
 import markdownPreviewerTool from "./markdown-previewer";
+import csvToJsonTool from "./csv-to-json";
+import urlEncoderDecoderTool from "./url-encoder-decoder";
 
 export type CategoryWithCount = Category & { count: number };
 
@@ -71,6 +73,8 @@ const RAW_TOOLS = [
   unitConverterTool,
   timestampConverterTool,
   markdownPreviewerTool,
+  csvToJsonTool,
+  urlEncoderDecoderTool,
 ] as unknown as LooseTool[];
 
 const CATEGORY_ORDER: CategorySlug[] = [
@@ -98,6 +102,8 @@ const CATEGORY_BY_SLUG: Record<string, CategorySlug> = {
   "unit-converter": "developer-tools",
   "timestamp-converter": "developer-tools",
   "markdown-previewer": "developer-tools",
+  "csv-to-json": "developer-tools",
+  "url-encoder-decoder": "developer-tools",
 };
 
 const CATEGORY_ALIASES: Record<string, CategorySlug> = {
@@ -170,6 +176,8 @@ const ICON_BY_SLUG: Record<string, IconName> = {
   "unit-converter": "trending-up",
   "timestamp-converter": "clock",
   "markdown-previewer": "file-text",
+  "csv-to-json": "code",
+  "url-encoder-decoder": "code",
 };
 
 const MAX_FILE_MB_BY_SLUG: Record<string, number> = {
@@ -182,6 +190,8 @@ const MAX_FILE_MB_BY_SLUG: Record<string, number> = {
   "text-diff-checker": 20,
   "color-converter": 5,
   "markdown-previewer": 600,
+  "csv-to-json": 600,
+  "url-encoder-decoder": 600,
 };
 
 const DEFAULT_HOW_TO: string[] = [
@@ -270,6 +280,16 @@ const HOW_TO_BY_SLUG: Record<string, string[]> = {
     "Type or paste Markdown on the left, or open a .md or .txt file.",
     "Switch between Split, Editor and Preview, or jump via the heading outline.",
     "Copy HTML or download standalone .html or .md files safely in your browser.",
+  ],
+  "csv-to-json": [
+    "Paste your CSV into the input box, or click Open CSV file, or drag a file onto the tool.",
+    "Leave the delimiter on Auto-detect, or pick comma, semicolon, tab or pipe if you know it.",
+    "Choose the output format and options, convert, then copy or download JSON.",
+  ],
+  "url-encoder-decoder": [
+    "Choose Encode to make text safe for a URL, or Decode to turn percent-encoded text back.",
+    "Paste text or drop a file of up to 600 MB, and pick the mode you need.",
+    "Copy the result, download .txt, or switch to Inspect URL to see parts and parameters.",
   ],
 };
 

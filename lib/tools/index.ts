@@ -41,16 +41,20 @@ interface LooseFaq {
 interface LooseTool {
   slug: string;
   name: string;
+  h1?: string;
   description?: string;
   tagline?: string;
+  metaTitle?: string;
+  metaDescription?: string;
   category?: string;
   icon?: string;
   keywords?: string[];
   seoTitle?: string;
-  metaTitle?: string;
-  seoDescription?: string;
-  metaDescription?: string;
+  intro?: string;
+  howTo?: string[];
+  features?: string[];
   article?: ContentSection[];
+  sections?: ContentSection[];
   faqs?: LooseFaq[];
   maxFileMB?: number;
   related?: string[];
@@ -177,141 +181,34 @@ const ICON_BY_SLUG: Record<string, IconName> = {
   "timestamp-converter": "clock",
   "markdown-previewer": "file-text",
   "csv-to-json": "code",
-  "url-encoder-decoder": "code",
+  "url-encoder-decoder": "link",
 };
 
 const MAX_FILE_MB_BY_SLUG: Record<string, number> = {
-  "word-counter": 600,
-  "base64-converter": 600,
-  "json-formatter": 600,
-  "hash-generator": 600,
-  "case-converter": 10,
-  "image-compressor": 600,
-  "text-diff-checker": 20,
-  "color-converter": 5,
-  "markdown-previewer": 600,
+  "image-compressor": 50,
   "csv-to-json": 600,
   "url-encoder-decoder": 600,
+  "markdown-previewer": 600,
 };
 
 const DEFAULT_HOW_TO: string[] = [
-  "Open the tool and enter your input or drop a file.",
-  "Adjust the options if you need to.",
-  "Copy the result or download it. Nothing leaves your browser.",
+  "Enter or paste your input into the workspace.",
+  "Adjust any available options to match your format or requirement.",
+  "Review the generated output, copy it to your clipboard, or download the result.",
 ];
 
-const HOW_TO_BY_SLUG: Record<string, string[]> = {
-  "word-counter": [
-    "Type or paste your text, or drop a text file onto the page.",
-    "Watch words, characters, sentences, paragraphs and reading time update live.",
-    "Check the keyword density list, then copy your stats or clear the box.",
-  ],
-  "ip-lookup": [
-    "Open the tool to see your public IP address and approximate location.",
-    "Type any IPv4 or IPv6 address to look it up instead.",
-    "Copy the details or open the location on a map.",
-  ],
-  "password-generator": [
-    "Choose a length and the character types you want.",
-    "Or switch to passphrase mode for easy-to-remember words.",
-    "Press Generate, then copy the password. It is created on your device.",
-  ],
-  "base64-converter": [
-    "Choose Encode or Decode.",
-    "Paste text or drop a file of up to 600 MB.",
-    "Set URL-safe, padding and line-wrap options, then copy or download the result.",
-  ],
-  "json-formatter": [
-    "Paste your JSON or drop a .json file.",
-    "Pick Format, Minify or Validate, and choose the indent size.",
-    "Fix any error shown with its line and column, then copy or download.",
-  ],
-  "slug-generator": [
-    "Type a title or paste a list of titles, one per line.",
-    "Choose the separator, stop-word and length options.",
-    "Copy the URL-friendly slugs or export them as CSV.",
-  ],
-  "qr-code-generator": [
-    "Pick a content type such as URL, Wi-Fi, vCard or plain text.",
-    "Enter your details and choose the error-correction level.",
-    "Download the QR code as PNG or SVG, or copy the image.",
-  ],
-  "hash-generator": [
-    "Type text or drop a file of up to 600 MB.",
-    "Tick the algorithms you want: MD5, SHA-1, SHA-256 or SHA-512.",
-    "Copy a digest, or paste a known hash to check it matches.",
-  ],
-  "case-converter": [
-    "Paste your text or drop a text file.",
-    "Click a case such as UPPER, Title, camelCase or snake_case.",
-    "Copy the result or download it as a .txt file.",
-  ],
-  "image-compressor": [
-    "Drop up to 200 images onto the page.",
-    "Set the quality, output format and maximum size.",
-    "Download each image, or everything together as a ZIP.",
-  ],
-  "text-diff-checker": [
-    "Paste the original text on the left and the changed text on the right.",
-    "Choose line or word mode and the view you prefer.",
-    "Review the highlighted changes, or export a unified diff.",
-  ],
-  "lorem-ipsum-generator": [
-    "Choose paragraphs, sentences or words and set the amount.",
-    "Pick plain text, HTML or list output.",
-    "Copy the placeholder text or generate a fresh batch.",
-  ],
-  "color-converter": [
-    "Type a colour in any format or use the picker.",
-    "Read the HEX, RGB, HSL, HSV, HWB, CMYK and OKLCH values.",
-    "Copy a value, check contrast, or convert a block of CSS.",
-  ],
-  "unit-converter": [
-    "Choose a category such as length, weight or temperature.",
-    "Enter a value and pick the from and to units.",
-    "Copy the result or any row from the all-units table.",
-  ],
-  "timestamp-converter": [
-    "Paste a Unix timestamp, or type a date to convert.",
-    "Pick a time zone and the timestamp unit.",
-    "Copy any format, or paste a list into the batch box.",
-  ],
-  "markdown-previewer": [
-    "Type or paste Markdown on the left, or open a .md or .txt file.",
-    "Switch between Split, Editor and Preview, or jump via the heading outline.",
-    "Copy HTML or download standalone .html or .md files safely in your browser.",
-  ],
-  "csv-to-json": [
-    "Paste your CSV into the input box, or click Open CSV file, or drag a file onto the tool.",
-    "Leave the delimiter on Auto-detect, or pick comma, semicolon, tab or pipe if you know it.",
-    "Choose the output format and options, convert, then copy or download JSON.",
-  ],
-  "url-encoder-decoder": [
-    "Choose Encode to make text safe for a URL, or Decode to turn percent-encoded text back.",
-    "Paste text or drop a file of up to 600 MB, and pick the mode you need.",
-    "Copy the result, download .txt, or switch to Inspect URL to see parts and parameters.",
-  ],
-};
+const HOW_TO_BY_SLUG: Record<string, string[]> = {};
 
-function featuresFor(maxFileMB?: number): string[] {
-  const features = [
-    "100% free with no sign-up",
-    "Runs entirely in your browser",
-    "Your data is never uploaded",
-    "Works on desktop and mobile",
+function featuresFor(maxFileMB: number | undefined): string[] {
+  const base = [
+    "Runs directly in your browser with zero server uploads",
+    "Instant results with copy and clear controls",
+    "Responsive layout for desktop and mobile browsers",
   ];
-  if (maxFileMB && maxFileMB >= 100) {
-    features.push(
-      `Handles files up to ${maxFileMB} MB`,
-      "Drag and drop with live progress",
-      "Instant download",
-    );
-  } else if (maxFileMB) {
-    features.push(`Handles text files up to ${maxFileMB} MB`, "Instant copy and download");
-  } else {
-    features.push("Instant results", "Copy with one click");
+  if (maxFileMB !== undefined) {
+    base.splice(1, 0, `Supports files up to ${maxFileMB} MB`);
   }
-  return features;
+  return base;
 }
 
 function clipAtWord(text: string, max: number, ellipsis: boolean): string {
@@ -321,7 +218,7 @@ function clipAtWord(text: string, max: number, ellipsis: boolean): string {
   let cut = clean.slice(0, limit);
   const lastSpace = cut.lastIndexOf(" ");
   if (lastSpace > limit * 0.6) cut = cut.slice(0, lastSpace);
-  cut = cut.replace(/[\s,;:.\-–—]+$/, "");
+  cut = cut.replace(/[\s,;:.-–—]+$/, "");
   return ellipsis ? `${cut}…` : cut;
 }
 
@@ -343,19 +240,33 @@ function toFaqs(faqs: LooseFaq[] | undefined): FaqItem[] {
   return out;
 }
 
-function splitArticle(article: ContentSection[] | undefined): {
-  intro: string;
-  sections: ContentSection[];
-} {
+function splitArticle(
+  article: ContentSection[] | undefined,
+  sections: ContentSection[] | undefined,
+  introText: string | undefined
+): { intro: string; sections: ContentSection[] } {
+  if (sections && sections.length > 0) {
+    const cleaned = sections.map((section) => ({
+      heading: section.heading,
+      paragraphs: [...section.paragraphs],
+    }));
+    return {
+      intro: introText ?? "",
+      sections: cleaned.filter((section) => section.paragraphs.length > 0),
+    };
+  }
   const source = (article ?? []).map((section) => ({
     heading: section.heading,
     paragraphs: [...section.paragraphs],
   }));
-  let intro = "";
-  if (source.length > 0 && source[0].paragraphs.length > 0) {
+  let intro = introText ?? "";
+  if (!intro && source.length > 0 && source[0].paragraphs.length > 0) {
     intro = source[0].paragraphs.shift() ?? "";
   }
-  return { intro, sections: source.filter((section) => section.paragraphs.length > 0) };
+  return {
+    intro,
+    sections: source.filter((section) => section.paragraphs.length > 0),
+  };
 }
 
 function adapt(raw: LooseTool): ToolDefinition {
@@ -366,24 +277,27 @@ function adapt(raw: LooseTool): ToolDefinition {
     ICON_BY_SLUG[slug] ??
     ((raw.icon && VALID_ICONS.has(raw.icon) ? raw.icon : "sparkles") as IconName);
   const maxFileMB = MAX_FILE_MB_BY_SLUG[slug] ?? raw.maxFileMB;
-  const { intro, sections } = splitArticle(raw.article);
+  const { intro, sections } = splitArticle(raw.article, raw.sections, raw.intro);
   const description = raw.description ?? raw.tagline ?? raw.name;
-
   const definition: ToolDefinition = {
     slug,
     name: raw.name,
-    h1: `Free ${raw.name} Online`,
-    tagline: description,
-    metaTitle: deriveMetaTitle(raw.seoTitle ?? raw.metaTitle, raw.name),
-    metaDescription: clipAtWord(raw.seoDescription ?? raw.metaDescription ?? description, 160, true),
+    h1: raw.h1 ?? `Free ${raw.name} Online`,
+    tagline: raw.tagline ?? description,
+    metaTitle: deriveMetaTitle(raw.metaTitle ?? raw.seoTitle, raw.name),
+    metaDescription: clipAtWord(
+      raw.metaDescription ?? raw.seoDescription ?? description,
+      160,
+      true
+    ),
     category,
     icon,
     keywords: raw.keywords ?? [],
     intro: intro || description,
-    howTo: HOW_TO_BY_SLUG[slug] ?? DEFAULT_HOW_TO,
+    howTo: raw.howTo ?? HOW_TO_BY_SLUG[slug] ?? DEFAULT_HOW_TO,
     sections,
     faqs: toFaqs(raw.faqs),
-    features: featuresFor(maxFileMB),
+    features: raw.features ?? featuresFor(maxFileMB),
     schemaType: "WebApplication",
     related: raw.related,
     datePublished: LEGAL_UPDATED_ISO,
@@ -409,7 +323,7 @@ export function getToolsByCategory(slug: string): ToolDefinition[] {
 
 export function getRelatedTools(
   toolOrSlug: ToolDefinition | string,
-  limit = 3,
+  limit = 3
 ): ToolDefinition[] {
   const tool = typeof toolOrSlug === "string" ? getToolBySlug(toolOrSlug) : toolOrSlug;
   if (!tool) return [];
@@ -438,13 +352,14 @@ export function getActiveCategories(): CategoryWithCount[] {
   return result;
 }
 
-export function toSummary(tool: ToolDefinition): ToolSummary {
+export function toToolSummary(tool: ToolDefinition): ToolSummary {
+  const categoryMeta = getCategory(tool.category);
   const summary: ToolSummary = {
     slug: tool.slug,
     name: tool.name,
     tagline: tool.tagline,
     category: tool.category,
-    categoryName: getCategory(tool.category)?.name ?? tool.category,
+    categoryName: categoryMeta?.name ?? tool.category,
     icon: tool.icon,
     keywords: tool.keywords,
   };

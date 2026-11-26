@@ -50,6 +50,7 @@ interface LooseTool {
   icon?: string;
   keywords?: string[];
   seoTitle?: string;
+  seoDescription?: string;
   intro?: string;
   howTo?: string[];
   features?: string[];
@@ -279,6 +280,7 @@ function adapt(raw: LooseTool): ToolDefinition {
   const maxFileMB = MAX_FILE_MB_BY_SLUG[slug] ?? raw.maxFileMB;
   const { intro, sections } = splitArticle(raw.article, raw.sections, raw.intro);
   const description = raw.description ?? raw.tagline ?? raw.name;
+  const rawDescriptionSource = raw.seoDescription ?? raw.description ?? "";
   const definition: ToolDefinition = {
     slug,
     name: raw.name,
@@ -286,7 +288,7 @@ function adapt(raw: LooseTool): ToolDefinition {
     tagline: raw.tagline ?? description,
     metaTitle: deriveMetaTitle(raw.metaTitle ?? raw.seoTitle, raw.name),
     metaDescription: clipAtWord(
-      raw.metaDescription ?? raw.seoDescription ?? description,
+      raw.metaDescription ?? rawDescriptionSource ?? description,
       160,
       true
     ),

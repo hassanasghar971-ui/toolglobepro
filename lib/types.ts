@@ -1,62 +1,72 @@
-export type IconName =
-  | "search"
-  | "sun"
-  | "moon"
-  | "menu"
-  | "x"
-  | "chevron-down"
-  | "chevron-right"
-  | "arrow-right"
-  | "type"
-  | "code"
-  | "shield"
-  | "globe"
-  | "link"
-  | "key"
-  | "braces"
-  | "file-text"
-  | "upload"
-  | "download"
-  | "copy"
-  | "check"
-  | "alert"
-  | "mail"
-  | "message"
-  | "home"
-  | "sparkles"
-  | "zap"
-  | "lock"
-  | "clock"
-  | "hash"
-  | "refresh"
-  | "trash"
-  | "map-pin"
-  | "external"
-  | "eye"
-  | "trending-up"
-  | "info";
+export const ICON_NAMES = [
+  "search",
+  "sun",
+  "moon",
+  "menu",
+  "x",
+  "chevron-down",
+  "chevron-right",
+  "arrow-right",
+  "type",
+  "code",
+  "shield",
+  "globe",
+  "link",
+  "key",
+  "braces",
+  "file-text",
+  "upload",
+  "download",
+  "copy",
+  "check",
+  "alert",
+  "mail",
+  "message",
+  "home",
+  "sparkles",
+  "zap",
+  "lock",
+  "clock",
+  "hash",
+  "refresh",
+  "trash",
+  "map-pin",
+  "external",
+  "eye",
+  "trending-up",
+  "info",
+] as const;
 
-export type CategorySlug =
-  | "text-tools"
-  | "developer-tools"
-  | "security-tools"
-  | "network-tools"
-  | "seo-tools"
-  | "data-tools"
-  | "file-tools"
-  | "converters"
-  | "encoding-decoding-tools"
-  | "image-tools"
-  | "design-color-tools"
-  | "social-media-tools"
-  | "generators"
-  | "time-date-tools"
-  | "math-calculators"
-  | "unit-converters"
-  | "web-utility-tools"
-  | "productivity-tools"
-  | "privacy-tools"
-  | "document-text-helpers";
+export type IconName = (typeof ICON_NAMES)[number];
+
+export const CATEGORY_SLUGS = [
+  "text-tools",
+  "developer-tools",
+  "security-tools",
+  "network-tools",
+  "seo-tools",
+  "data-tools",
+  "file-tools",
+  "converters",
+  "encoding-decoding-tools",
+  "image-tools",
+  "design-color-tools",
+  "social-media-tools",
+  "generators",
+  "time-date-tools",
+  "math-calculators",
+  "unit-converters",
+  "web-utility-tools",
+  "productivity-tools",
+  "privacy-tools",
+  "document-text-helpers",
+] as const;
+
+export type CategorySlug = (typeof CATEGORY_SLUGS)[number];
+
+export const SCHEMA_TYPES = ["WebApplication", "SoftwareApplication"] as const;
+
+export type SchemaType = (typeof SCHEMA_TYPES)[number];
 
 export interface FaqItem {
   q: string;
@@ -93,7 +103,7 @@ export interface ToolDefinition {
   sections: ContentSection[];
   faqs: FaqItem[];
   features: string[];
-  schemaType: "WebApplication" | "SoftwareApplication";
+  schemaType: SchemaType;
   maxFileMB?: number;
   related?: string[];
   datePublished: string;
@@ -109,4 +119,9 @@ export interface ToolSummary {
   icon: IconName;
   keywords: string[];
   maxFileMB?: number;
+}
+
+export interface Tool {
+  slug: string;
+  [key: string]: unknown;
 }

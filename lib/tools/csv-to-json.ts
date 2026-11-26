@@ -26,23 +26,27 @@ const csvToJsonTool: ToolDefinition = {
   sections: [
     {
       heading: "A CSV to JSON converter that keeps your data private",
-      body:
+      paragraphs: [
         "Many online converters upload your file to a server, where it may be stored, logged or scanned. That is a poor fit for payroll exports, customer lists, analytics dumps or anything covered by GDPR or similar rules. This tool parses the file locally using your own processor. There is no upload step, no account and no size quota tied to a server. You can disconnect from the internet after the page loads and the conversion still works, which is the simplest proof that your data stays with you.",
+      ],
     },
     {
       heading: "Proper CSV parsing, not a simple split on commas",
-      body:
+      paragraphs: [
         "Real CSV files are messier than they look. A field can contain a comma, a quote or even a line break as long as it is wrapped in double quotes, and two quotes in a row stand for one literal quote. This converter follows those rules, so an address such as Springfield, IL or a note that spans two lines ends up in a single JSON value instead of breaking the row. It also removes the byte order mark that Excel adds, accepts both Windows and Unix line endings, and detects whether your file uses commas, semicolons, tabs or pipes. European exports that use semicolons work without any manual setup.",
+      ],
     },
     {
       heading: "Choose the JSON shape you need",
-      body:
+      paragraphs: [
         "Use an array of objects when your first row holds column names and you want each record as a keyed object, which is the usual shape for APIs, databases and JavaScript code. Use an array of arrays when you want a compact table that keeps the header as the first row. Use JSON Lines, also called NDJSON, when you plan to load the data into tools that read one record per line, such as log processors, BigQuery imports or streaming pipelines. Optional type conversion turns numbers, true and false into real JSON types and empty cells into null, while IDs with leading zeros and very large integers stay as strings so no digits are lost.",
+      ],
     },
     {
       heading: "Built for very large files",
-      body:
+      paragraphs: [
         "A 300 MB export would normally crash a browser tab if it were loaded into a text box. Here the file is read in small chunks by a background worker, converted row by row and assembled into a downloadable file piece by piece. A progress bar shows how far along it is, you can cancel at any time, and the page stays responsive. Pasted text of up to a few hundred thousand characters converts live as you type, while bigger inputs run in the background with the same progress display. If the converter finds uneven rows, duplicate headers or a quote that never closes, it tells you instead of silently producing wrong data.",
+      ],
     },
   ],
   howTo: [
@@ -68,34 +72,28 @@ const csvToJsonTool: ToolDefinition = {
   ],
   faqs: [
     {
-      question: "Is my CSV file uploaded anywhere?",
-      answer:
-        "No. The file is read and converted inside your browser, and large files are processed by a background worker on your device. Nothing is sent to a server.",
+      q: "Is my CSV file uploaded anywhere?",
+      a: "No. The file is read and converted inside your browser, and large files are processed by a background worker on your device. Nothing is sent to a server.",
     },
     {
-      question: "How large a CSV can I convert?",
-      answer:
-        "Up to 600 MB. Large files are streamed in chunks, so memory use stays low while the JSON is built. Very large results are offered as a download, and the screen shows a preview of the first rows.",
+      q: "How large a CSV can I convert?",
+      a: "Up to 600 MB. Large files are streamed in chunks, so memory use stays low while the JSON is built. Very large results are offered as a download, and the screen shows a preview of the first rows.",
     },
     {
-      question: "Why do my accented letters look wrong?",
-      answer:
-        "The file probably uses a legacy encoding such as Windows-1252. Change the file encoding option and the preview updates. UTF-8 files, including those with a byte order mark, work by default.",
+      q: "Why do my accented letters look wrong?",
+      a: "The file probably uses a legacy encoding such as Windows-1252. Change the file encoding option and the preview updates. UTF-8 files, including those with a byte order mark, work by default.",
     },
     {
-      question: "What happens to numbers like 007 or very long IDs?",
-      answer:
-        "When type conversion is on, values with leading zeros and integers too large to store exactly are kept as strings, so postal codes, phone numbers and long IDs are not damaged. Turn type conversion off to keep every value as a string.",
+      q: "What happens to numbers like 007 or very long IDs?",
+      a: "When type conversion is on, values with leading zeros and integers too large to store exactly are kept as strings, so postal codes, phone numbers and long IDs are not damaged. Turn type conversion off to keep every value as a string.",
     },
     {
-      question: "What if some rows have more or fewer columns?",
-      answer:
-        "Missing values become null, and extra values get names like column_5. The tool shows a warning with the number of affected rows so you can check the source.",
+      q: "What if some rows have more or fewer columns?",
+      a: "Missing values become null, and extra values get names like column_5. The tool shows a warning with the number of affected rows so you can check the source.",
     },
     {
-      question: "Which output should I choose for a database import?",
-      answer:
-        "Use JSON Lines if the importer reads one record per line, as many bulk loaders do. Use an array of objects for REST APIs and JavaScript code.",
+      q: "Which output should I choose for a database import?",
+      a: "Use JSON Lines if the importer reads one record per line, as many bulk loaders do. Use an array of objects for REST APIs and JavaScript code.",
     },
   ],
 };

@@ -3,10 +3,11 @@ import type { ToolDefinition } from "../types";
 const csvToJsonTool: ToolDefinition = {
   slug: "csv-to-json",
   name: "CSV to JSON Converter",
-  title: "CSV to JSON Converter Online: Large Files, Private and Free",
-  description:
-    "Convert CSV to JSON in your browser. Handles quoted fields, any delimiter, Excel encodings and files up to 600 MB. Output arrays, objects or NDJSON. Nothing is uploaded.",
-  shortDescription: "Turn CSV, TSV and Excel exports into clean JSON. Streams files up to 600 MB, with no uploads.",
+  h1: "CSV to JSON Converter Online",
+  tagline: "Turn CSV, TSV and Excel exports into clean JSON, arrays or NDJSON privately in your browser.",
+  metaTitle: "CSV to JSON Converter: Large Files & Private",
+  metaDescription:
+    "Convert CSV to JSON in your browser. Handles quoted fields, delimiters, Excel encodings and files up to 600 MB. Nothing is uploaded.",
   category: "developer-tools",
   icon: "code",
   keywords: [
@@ -96,6 +97,11 @@ const csvToJsonTool: ToolDefinition = {
       a: "Use JSON Lines if the importer reads one record per line, as many bulk loaders do. Use an array of objects for REST APIs and JavaScript code.",
     },
   ],
+  schemaType: "WebApplication",
+  maxFileMB: 600,
+  related: ["json-formatter", "url-encoder-decoder", "markdown-previewer"],
+  datePublished: "2026-11-26",
+  dateModified: "2026-11-26",
 };
 
 export default csvToJsonTool;

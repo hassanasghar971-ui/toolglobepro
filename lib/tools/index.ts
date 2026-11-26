@@ -1,5 +1,15 @@
-import { CATEGORIES } from "../categories";
-import type { Category, CategorySlug, ContentSection, FaqItem, IconName, ToolDefinition, ToolSummary } from "../types";
+import { CATEGORIES, getCategory, resolveCategorySlug } from "../categories";
+import { ICON_NAMES } from "../types";
+import type {
+  Category,
+  CategorySlug,
+  ContentSection,
+  FaqItem,
+  IconName,
+  SchemaType,
+  ToolDefinition,
+  ToolSummary,
+} from "../types";
 import wordCounterTool from "./word-counter";
 import ipLookupTool from "./ip-lookup";
 import passwordGeneratorTool from "./password-generator";
@@ -31,6 +41,8 @@ interface LooseFaq {
 interface LooseSection {
   heading?: string;
   paragraphs?: string[];
+  body?: unknown;
+  content?: unknown;
 }
 
 interface LooseTool {
@@ -50,9 +62,9 @@ interface LooseTool {
   howTo?: string[];
   features?: string[];
   article?: LooseSection[];
-  sections?: ContentSection[];
+  sections?: LooseSection[];
   faqs?: LooseFaq[];
-  schemaType?: "WebApplication" | "SoftwareApplication";
+  schemaType?: SchemaType;
   maxFileMB?: number;
   related?: string[];
   datePublished?: string;
@@ -80,9 +92,12 @@ const RAW_TOOLS: LooseTool[] = [
   urlEncoderDecoderTool as unknown as LooseTool,
 ];
 
-const CATEGORY_ORDER: CategorySlug[] = CATEGORIES.map((c) => c.slug);
+const DEFAULT_CATEGORY: CategorySlug = "developer-tools";
+const DEFAULT_PUBLISHED = "2026-01-01";
+const DEFAULT_MODIFIED = "2026-11-26";
 
-const CATEGORY_BY_SLUG: Record<string, CategorySlug> = {
+/* Central overrides. A tool listed here is placed in this category whatever its own definition says. A tool not listed uses the category written in its definition file. */
+const CATEGORY_BY_SLUG: Partial<Record<string, CategorySlug>> = {
   "word-counter": "text-tools",
   "ip-lookup": "network-tools",
   "password-generator": "security-tools",
@@ -96,7 +111,6 @@ const CATEGORY_BY_SLUG: Record<string, CategorySlug> = {
   "text-diff-checker": "text-tools",
   "lorem-ipsum-generator": "generators",
   "color-converter": "design-color-tools",
-  "unit-converters": "unit-converters",
   "unit-converter": "unit-converters",
   "timestamp-converter": "time-date-tools",
   "markdown-previewer": "document-text-helpers",
@@ -104,87 +118,7 @@ const CATEGORY_BY_SLUG: Record<string, CategorySlug> = {
   "url-encoder-decoder": "encoding-decoding-tools",
 };
 
-const CATEGORY_ALIASES: Record<string, CategorySlug> = {
-  text: "text-tools",
-  "text-tools": "text-tools",
-  developer: "developer-tools",
-  "developer-tools": "developer-tools",
-  converters: "converters",
-  security: "security-tools",
-  "security-tools": "security-tools",
-  network: "network-tools",
-  "network-tools": "network-tools",
-  seo: "seo-tools",
-  "seo-tools": "seo-tools",
-  data: "data-tools",
-  "data-tools": "data-tools",
-  file: "file-tools",
-  "file-tools": "file-tools",
-  encoding: "encoding-decoding-tools",
-  "encoding-decoding-tools": "encoding-decoding-tools",
-  image: "image-tools",
-  "image-tools": "image-tools",
-  design: "design-color-tools",
-  "design-color-tools": "design-color-tools",
-  social: "social-media-tools",
-  "social-media-tools": "social-media-tools",
-  generators: "generators",
-  time: "time-date-tools",
-  "time-date-tools": "time-date-tools",
-  math: "math-calculators",
-  "math-calculators": "math-calculators",
-  unit: "unit-converters",
-  "unit-converters": "unit-converters",
-  web: "web-utility-tools",
-  "web-utility-tools": "web-utility-tools",
-  productivity: "productivity-tools",
-  "productivity-tools": "productivity-tools",
-  privacy: "privacy-tools",
-  "privacy-tools": "privacy-tools",
-  document: "document-text-helpers",
-  "document-text-helpers": "document-text-helpers",
-};
-
-const VALID_ICONS = new Set<string>([
-  "search",
-  "sun",
-  "moon",
-  "menu",
-  "x",
-  "chevron-down",
-  "chevron-right",
-  "arrow-right",
-  "type",
-  "code",
-  "shield",
-  "globe",
-  "link",
-  "key",
-  "braces",
-  "file-text",
-  "upload",
-  "download",
-  "copy",
-  "check",
-  "alert",
-  "mail",
-  "message",
-  "home",
-  "sparkles",
-  "zap",
-  "lock",
-  "clock",
-  "hash",
-  "refresh",
-  "trash",
-  "map-pin",
-  "external",
-  "eye",
-  "trending-up",
-  "info",
-]);
-
-const ICON_BY_SLUG: Record<string, IconName> = {
+const ICON_BY_SLUG: Partial<Record<string, IconName>> = {
   "word-counter": "type",
   "ip-lookup": "globe",
   "password-generator": "key",
@@ -205,34 +139,57 @@ const ICON_BY_SLUG: Record<string, IconName> = {
   "url-encoder-decoder": "link",
 };
 
+const VALID_ICONS = new Set<string>(ICON_NAMES);
+
+function isIconName(value: string): value is IconName {
+  return VALID_ICONS.has(value);
+}
+
 function resolveCategory(raw: LooseTool): CategorySlug {
   const mapped = CATEGORY_BY_SLUG[raw.slug];
-  if (mapped) return mapped;
-  const rawCat = (raw.category ?? "").trim().toLowerCase();
-  const aliased = CATEGORY_ALIASES[rawCat];
-  if (aliased) return aliased;
-  return "developer-tools";
+  if (mapped !== undefined) return mapped;
+  const own = resolveCategorySlug(raw.category ?? "");
+  return own ?? DEFAULT_CATEGORY;
 }
 
 function resolveIcon(raw: LooseTool): IconName {
   const mapped = ICON_BY_SLUG[raw.slug];
-  if (mapped) return mapped;
+  if (mapped !== undefined) return mapped;
   const rawIcon = (raw.icon ?? "").trim();
-  if (VALID_ICONS.has(rawIcon)) return rawIcon as IconName;
-  return "code";
+  return isIconName(rawIcon) ? rawIcon : "code";
+}
+
+function toParagraphs(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.filter(
+      (p): p is string => typeof p === "string" && p.trim().length > 0,
+    );
+  }
+  if (typeof value === "string" && value.trim().length > 0) {
+    return value
+      .split(/\n{2,}/)
+      .map((p) => p.trim())
+      .filter((p) => p.length > 0);
+  }
+  return [];
 }
 
 function normalizeSections(raw: LooseTool): ContentSection[] {
-  if (Array.isArray(raw.sections) && raw.sections.length > 0) {
-    return raw.sections;
+  const hasSections = Array.isArray(raw.sections) && raw.sections.length > 0;
+  const source: LooseSection[] = hasSections
+    ? (raw.sections ?? [])
+    : Array.isArray(raw.article)
+      ? raw.article
+      : [];
+  const result: ContentSection[] = [];
+  for (const sec of source) {
+    let paragraphs = toParagraphs(sec.paragraphs);
+    if (paragraphs.length === 0) paragraphs = toParagraphs(sec.body);
+    if (paragraphs.length === 0) paragraphs = toParagraphs(sec.content);
+    if (paragraphs.length === 0) continue;
+    result.push({ heading: sec.heading ?? "Overview", paragraphs });
   }
-  if (Array.isArray(raw.article) && raw.article.length > 0) {
-    return raw.article.map((sec) => ({
-      heading: sec.heading ?? "Overview",
-      paragraphs: Array.isArray(sec.paragraphs) ? sec.paragraphs : [],
-    }));
-  }
-  return [];
+  return result;
 }
 
 function normalizeFaqs(raw: LooseTool): FaqItem[] {
@@ -264,19 +221,45 @@ function normalizeTool(raw: LooseTool): ToolDefinition {
     icon,
     keywords: Array.isArray(raw.keywords) ? raw.keywords : [raw.name.toLowerCase()],
     intro: raw.intro ?? firstPara,
-    howTo: Array.isArray(raw.howTo) && raw.howTo.length > 0 ? raw.howTo : ["Enter your input in the tool workspace.", "Review the output generated locally in your browser.", "Copy or download the result."],
+    howTo:
+      Array.isArray(raw.howTo) && raw.howTo.length > 0
+        ? raw.howTo
+        : [
+            "Enter your input in the tool workspace.",
+            "Review the output generated locally in your browser.",
+            "Copy or download the result.",
+          ],
     sections,
     faqs: normalizeFaqs(raw),
-    features: Array.isArray(raw.features) && raw.features.length > 0 ? raw.features : ["100% browser-based processing", "No server data upload", "Instant copy and export"],
+    features:
+      Array.isArray(raw.features) && raw.features.length > 0
+        ? raw.features
+        : [
+            "100% browser-based processing",
+            "No server data upload",
+            "Instant copy and export",
+          ],
     schemaType: raw.schemaType ?? "WebApplication",
     maxFileMB: raw.maxFileMB,
     related: raw.related,
-    datePublished: raw.datePublished ?? "2026-01-01",
-    dateModified: raw.dateModified ?? "2026-11-26",
+    datePublished: raw.datePublished ?? DEFAULT_PUBLISHED,
+    dateModified: raw.dateModified ?? DEFAULT_MODIFIED,
   };
 }
 
+function assertUniqueSlugs(list: ToolDefinition[]): void {
+  const seen = new Set<string>();
+  for (const tool of list) {
+    if (seen.has(tool.slug)) {
+      throw new Error("Duplicate tool slug in registry: " + tool.slug);
+    }
+    seen.add(tool.slug);
+  }
+}
+
 export const TOOLS: ToolDefinition[] = RAW_TOOLS.map(normalizeTool);
+
+assertUniqueSlugs(TOOLS);
 
 export function getAllTools(): ToolDefinition[] {
   return TOOLS;
@@ -286,7 +269,7 @@ export function getAllToolSlugs(): string[] {
   return TOOLS.map((t) => t.slug);
 }
 
-export function getToolBySlug(slug: string): ToolDefinition | undefined {
+export function getToolBySlug(slug: string) {
   return TOOLS.find((t) => t.slug === slug);
 }
 
@@ -294,23 +277,43 @@ export function getToolsByCategory(categorySlug: string): ToolDefinition[] {
   return TOOLS.filter((t) => t.category === categorySlug);
 }
 
-export function getRelatedTools(toolOrSlug: ToolDefinition | string, limit = 3): ToolDefinition[] {
-  const current = typeof toolOrSlug === "string" ? getToolBySlug(toolOrSlug) : toolOrSlug;
-  if (!current) return TOOLS.slice(0, limit);
-  const explicit = (current.related ?? [])
-    .map((s) => getToolBySlug(s))
-    .filter((t): t is ToolDefinition => Boolean(t) && t.slug !== current.slug);
+export function getRelatedTools(
+  toolOrSlug: ToolDefinition | string,
+  limit = 3,
+): ToolDefinition[] {
+  const current =
+    typeof toolOrSlug === "string" ? getToolBySlug(toolOrSlug) : toolOrSlug;
+  if (current === undefined) return TOOLS.slice(0, limit);
+
+  const explicit: ToolDefinition[] = [];
+  for (const slug of current.related ?? []) {
+    const found = getToolBySlug(slug);
+    if (
+      found !== undefined &&
+      found.slug !== current.slug &&
+      !explicit.includes(found)
+    ) {
+      explicit.push(found);
+    }
+  }
+
   const sameCategory = TOOLS.filter(
-    (t) => t.slug !== current.slug && t.category === current.category && !explicit.includes(t)
+    (t) =>
+      t.slug !== current.slug &&
+      t.category === current.category &&
+      !explicit.includes(t),
   );
   const others = TOOLS.filter(
-    (t) => t.slug !== current.slug && !explicit.includes(t) && !sameCategory.includes(t)
+    (t) =>
+      t.slug !== current.slug &&
+      !explicit.includes(t) &&
+      !sameCategory.includes(t),
   );
   return [...explicit, ...sameCategory, ...others].slice(0, limit);
 }
 
 export function toToolSummary(tool: ToolDefinition): ToolSummary {
-  const category = CATEGORIES.find((c) => c.slug === tool.category);
+  const category = getCategory(tool.category);
   return {
     slug: tool.slug,
     name: tool.name,
@@ -326,14 +329,11 @@ export function toToolSummary(tool: ToolDefinition): ToolSummary {
 export { toToolSummary as toSummary };
 
 export function getActiveCategories(): CategoryWithCount[] {
-  const ordered = [...CATEGORIES].sort((a, b) => {
-    const ia = CATEGORY_ORDER.indexOf(a.slug);
-    const ib = CATEGORY_ORDER.indexOf(b.slug);
-    const va = ia < 0 ? 999 : ia;
-    const vb = ib < 0 ? 999 : ib;
-    return va - vb;
-  });
-  return ordered
-    .map((c) => ({ ...c, count: getToolsByCategory(c.slug).length }))
-    .filter((c) => c.count > 0);
+  const counts = new Map<string, number>();
+  for (const tool of TOOLS) {
+    counts.set(tool.category, (counts.get(tool.category) ?? 0) + 1);
+  }
+  return CATEGORIES.map((c) => ({ ...c, count: counts.get(c.slug) ?? 0 })).filter(
+    (c) => c.count > 0,
+  );
 }

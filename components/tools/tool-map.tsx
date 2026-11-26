@@ -42,6 +42,7 @@ export const TOOL_MAP: Record<string, ToolComponent> = {
   "url-encoder-decoder": UrlEncoderDecoderTool,
 };
 
+export const TOOL_COMPONENTS = TOOL_MAP;
 export const toolComponents = TOOL_MAP;
 
 export function getToolComponent(slug: string): ToolComponent | undefined {

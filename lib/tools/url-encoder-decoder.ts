@@ -3,10 +3,11 @@ import type { ToolDefinition } from "../types";
 const urlEncoderDecoderTool: ToolDefinition = {
   slug: "url-encoder-decoder",
   name: "URL Encoder and Decoder",
-  title: "URL Encoder and Decoder Online: Percent-Encode, Decode and Inspect",
-  description:
-    "Free URL encoder and decoder. Percent-encode or decode text, query strings and full URLs, inspect URL parts and parameters. Runs in your browser, handles big files, nothing uploaded.",
-  shortDescription: "Encode, decode and inspect URLs and query strings. Private, instant and works on large files.",
+  h1: "URL Encoder and Decoder Online",
+  tagline: "Percent-encode, decode and inspect URLs, query strings and large text files privately.",
+  metaTitle: "URL Encoder & Decoder: Encode, Decode & Parse",
+  metaDescription:
+    "Free URL encoder and decoder. Percent-encode or decode text, query strings and URLs, and inspect parts in your browser. Nothing uploaded.",
   category: "developer-tools",
   icon: "code",
   keywords: [
@@ -96,6 +97,11 @@ const urlEncoderDecoderTool: ToolDefinition = {
       a: "Up to 600 MB. The file is read in chunks, a progress bar shows the status and you can cancel at any time. Large results are offered as a download, with a preview on screen.",
     },
   ],
+  schemaType: "WebApplication",
+  maxFileMB: 600,
+  related: ["csv-to-json", "markdown-previewer", "base64-converter"],
+  datePublished: "2026-11-26",
+  dateModified: "2026-11-26",
 };
 
 export default urlEncoderDecoderTool;

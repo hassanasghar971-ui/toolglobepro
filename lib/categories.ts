@@ -69,6 +69,7 @@ export const CATEGORIES: Category[] = [
     body: [
       "Convert structured datasets locally without uploading business or analytical spreadsheets to external servers.",
       "Supports large browser processing workflows with clean output formatting.",
+      "Today that means turning CSV exports into clean JSON with delimiter detection, header handling and streamed processing for big files, so a spreadsheet from a client or a database dump never has to leave your machine.",
     ],
     icon: "braces",
     keywords: ["data tools", "csv to json", "json converter", "structured data tools"],
@@ -81,6 +82,7 @@ export const CATEGORIES: Category[] = [
     body: [
       "Work with local files directly through modern browser APIs without waiting on server uploads.",
       "Built with explicit resource cleanup to keep memory usage predictable.",
+      "Every tool in this group follows the same rules: local processing, a stated size ceiling, a visible progress bar and a cancel button, so a large file never freezes the page.",
     ],
     icon: "upload",
     keywords: ["file tools", "online file utilities", "browser file processor", "large file tools"],
@@ -93,6 +95,7 @@ export const CATEGORIES: Category[] = [
     body: [
       "Switch between formats cleanly without installing extra software or uploading sensitive inputs.",
       "Focused on accuracy, speed and straightforward controls.",
+      "Each converter shows its result straight away, with one-click copy and download, so you can go from input to a usable output without leaving the page.",
     ],
     icon: "refresh",
     keywords: ["online converters", "format converter", "browser converters", "free conversion tools"],
@@ -105,6 +108,7 @@ export const CATEGORIES: Category[] = [
     body: [
       "Encode special characters and decode percent-encoded strings instantaneously in your browser.",
       "Useful for debugging APIs, query parameters, redirects and web links.",
+      "The URL encoder and decoder covers component, full-URI and form encoding, warns about text that looks double-encoded, and can break a full URL into its parts and query parameters, which makes broken redirects and tracking links much easier to trace.",
     ],
     icon: "link",
     keywords: ["url encoder decoder", "encode decode online", "percent encoding", "url encoding tool"],
@@ -117,6 +121,7 @@ export const CATEGORIES: Category[] = [
     body: [
       "Compress images on-device using browser canvas capabilities so photos stay private.",
       "Ideal for faster web pages, lighter attachments and quick media prep.",
+      "Because pictures are processed on your own device and never uploaded, this is a sensible place for personal photos, scanned documents and unreleased product shots that you would rather not hand to a third-party server.",
     ],
     icon: "sparkles",
     keywords: ["image tools", "image compressor", "compress image online", "browser image optimizer"],
@@ -129,6 +134,7 @@ export const CATEGORIES: Category[] = [
     body: [
       "Convert color values accurately and copy ready-to-use formats for stylesheets and design systems.",
       "Designed for designers and frontend developers working in the browser.",
+      "The color converter moves a value between common web color formats, so a swatch copied from a design file can go straight into CSS without a trip to another app.",
     ],
     icon: "eye",
     keywords: ["color tools", "color converter", "hex to rgb", "design color utilities"],
@@ -141,6 +147,7 @@ export const CATEGORIES: Category[] = [
     body: [
       "Draft and format posts, links and text snippets locally without logging into third-party accounts.",
       "Built for creators, marketers and social managers who value speed and privacy.",
+      "Tools in this group focus on the small jobs that eat a creator's day: trimming text to platform limits, tidying links and preparing captions, all without connecting an account.",
     ],
     icon: "message",
     keywords: ["social media tools", "caption formatter", "social post helper", "creator utilities"],
@@ -153,6 +160,7 @@ export const CATEGORIES: Category[] = [
     body: [
       "Generate placeholder copy, codes and test values on demand with zero server latency.",
       "Helpful for mockups, prototyping, testing and everyday publishing.",
+      "Placeholder text and QR codes are both created on your device, so whatever you encode in a QR code is never sent anywhere or logged by a third-party generator.",
     ],
     icon: "zap",
     keywords: ["online generators", "lorem ipsum generator", "qr code generator", "browser generators"],
@@ -165,6 +173,7 @@ export const CATEGORIES: Category[] = [
     body: [
       "Convert between Unix timestamps and human-readable dates quickly without timezone confusion.",
       "Built for engineers, analysts and operations teams.",
+      "It is most useful when a log line or API response shows a bare epoch number and you need to know which moment it actually refers to, in your own timezone and in UTC.",
     ],
     icon: "clock",
     keywords: ["timestamp converter", "unix timestamp", "date time tools", "epoch converter"],
@@ -177,6 +186,7 @@ export const CATEGORIES: Category[] = [
     body: [
       "Run calculations immediately with clear inputs and readable results.",
       "No server calls required for everyday arithmetic and numeric checks.",
+      "Calculators here show their inputs and working next to the answer, so you can check a number rather than just trust it.",
     ],
     icon: "hash",
     keywords: ["math calculators", "online calculator", "browser calculators", "calculation tools"],
@@ -189,6 +199,7 @@ export const CATEGORIES: Category[] = [
     body: [
       "Convert measurements in seconds across common units without installing dedicated apps.",
       "Designed for clarity and quick reference.",
+      "Pick a value, choose the units on each side and read the result immediately, which suits recipes, engineering sheets and anything that crosses between metric and imperial.",
     ],
     icon: "arrow-right",
     keywords: ["unit converters", "measurement converter", "convert units online", "unit conversion tool"],
@@ -201,6 +212,7 @@ export const CATEGORIES: Category[] = [
     body: [
       "Keep everyday web helpers one click away in a clean, fast interface.",
       "Every page stays indexable with zero server overhead.",
+      "This group collects the small utilities that web workers reach for several times a week and that do not belong in a heavier category.",
     ],
     icon: "globe",
     keywords: ["web utility tools", "browser utilities", "online web tools", "free web helpers"],
@@ -213,6 +225,7 @@ export const CATEGORIES: Category[] = [
     body: [
       "Stay focused with distraction-free tools that run immediately in your browser.",
       "Your working text stays local on your device.",
+      "There is nothing to sign up for and nothing to sync, so a draft or a to-do list exists only in the tab you are working in.",
     ],
     icon: "check",
     keywords: ["productivity tools", "workflow helpers", "online productivity", "browser productivity"],
@@ -225,6 +238,7 @@ export const CATEGORIES: Category[] = [
     body: [
       "Reduce exposure by running checks, transformations and formatting inside your own browser session.",
       "Aligned with ToolGlobe Pro zero-server-upload principles.",
+      "Tools in this group are chosen for jobs where the input itself is the sensitive part, such as personal files, credentials and metadata, and they say plainly what is and is not processed.",
     ],
     icon: "lock",
     keywords: ["privacy tools", "local processing tools", "no upload tools", "private browser tools"],
@@ -237,14 +251,43 @@ export const CATEGORIES: Category[] = [
     body: [
       "Write, format and preview Markdown and structured document text smoothly in your browser.",
       "Built for documentation authors, technical writers and developers.",
+      "The Markdown previewer renders as you type, builds an outline from your headings, shows reading time and exports clean Markdown or HTML. Raw HTML in the source is displayed as text rather than executed, so previewing untrusted Markdown stays safe.",
     ],
     icon: "file-text",
     keywords: ["markdown previewer", "document helpers", "markdown editor preview", "text helpers"],
   },
 ];
 
-export function getCategory(slug: string): Category | undefined {
-  return CATEGORIES.find((c) => c.slug === slug);
+function firstSegment(slug: string): string {
+  const parts = slug.split("-");
+  return parts[0] ?? slug;
+}
+
+function buildAliasTable(list: Category[]): Map<string, CategorySlug> {
+  const table = new Map<string, CategorySlug>();
+  const uses = new Map<string, number>();
+  for (const c of list) {
+    table.set(c.slug, c.slug);
+    const key = firstSegment(c.slug);
+    uses.set(key, (uses.get(key) ?? 0) + 1);
+  }
+  for (const c of list) {
+    const key = firstSegment(c.slug);
+    if (uses.get(key) === 1 && !table.has(key)) {
+      table.set(key, c.slug);
+    }
+  }
+  return table;
+}
+
+const ALIASES = buildAliasTable(CATEGORIES);
+
+const BY_SLUG = new Map<string, Category>(
+  CATEGORIES.map((c): [string, Category] => [c.slug, c]),
+);
+
+export function getCategory(slug: string) {
+  return BY_SLUG.get(slug);
 }
 
 export function getAllCategories(): Category[] {
@@ -253,4 +296,12 @@ export function getAllCategories(): Category[] {
 
 export function getCategorySlugs(): CategorySlug[] {
   return CATEGORIES.map((c) => c.slug);
+}
+
+export function isCategorySlug(value: string): value is CategorySlug {
+  return BY_SLUG.has(value);
+}
+
+export function resolveCategorySlug(value: string) {
+  return ALIASES.get(value.trim().toLowerCase());
 }

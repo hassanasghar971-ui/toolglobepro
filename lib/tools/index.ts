@@ -366,3 +366,4 @@ export function toToolSummary(tool: ToolDefinition): ToolSummary {
   if (tool.maxFileMB !== undefined) summary.maxFileMB = tool.maxFileMB;
   return summary;
 }
+export { toToolSummary as toSummary };

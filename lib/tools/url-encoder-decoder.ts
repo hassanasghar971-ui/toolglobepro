@@ -26,23 +26,27 @@ const urlEncoderDecoderTool: ToolDefinition = {
   sections: [
     {
       heading: "Why URLs need percent-encoding",
-      body:
+      paragraphs: [
         "A URL can safely contain only a limited set of characters. Anything else, including spaces, accented letters, emoji and symbols such as the ampersand or hash, has to be written as a percent sign followed by two hexadecimal digits. A space becomes %20, an ampersand becomes %26 and the letter e with an acute accent becomes %C3%A9 because it is sent as UTF-8 bytes. Skipping this step is a common cause of broken links, failed API calls, lost query parameters and redirect loops. This tool does the conversion correctly in one click, for a single value or for a whole list of lines.",
+      ],
     },
     {
       heading: "Choose the right encoding mode",
-      body:
+      paragraphs: [
         "Component mode uses the same rules as the JavaScript function encodeURIComponent and is the right choice for a single query value, a path segment or a redirect target, because it also encodes slashes, question marks and equals signs. Full URL mode follows encodeURI and leaves the structure of a complete address alone while still fixing spaces and non-ASCII text. Strict RFC 3986 mode additionally encodes the characters ! ' ( ) and *, which some signature schemes and payment gateways require. Form mode matches what browsers send for HTML forms, where a space is written as a plus sign. If your text already contains some %XX sequences, tick the option to keep them so nothing is encoded twice.",
+      ],
     },
     {
       heading: "Decoding that never fails on messy input",
-      body:
+      paragraphs: [
         "Browsers throw an error when they meet a broken percent sequence, which makes many simple decoders stop with a cryptic message. This one decodes every valid sequence and leaves the broken ones alone, then tells you how many it skipped. That makes it practical for server logs, analytics exports and copied links that were cut off or edited by hand. In form mode, plus signs become spaces before decoding, which is what you want for query strings from search forms. If the result still contains patterns like %25XX, the text was probably encoded twice, and a Decode again button lets you peel off the second layer.",
+      ],
     },
     {
       heading: "Inspect any URL and handle large files",
-      body:
+      paragraphs: [
         "The Inspect tab splits a link into protocol, host, port, path, query string and fragment, shows a decoded version of each encoded part, and lists every query parameter in a table. It is a quick way to debug tracking links, OAuth redirects and API requests, and a reminder to check for credentials hidden inside a link. For bulk work, open a text file of up to 600 MB, such as a list of URLs or a log. It is read in chunks by a background worker with a progress bar and a cancel button, and the result is offered as a download. Nothing is sent to a server at any point.",
+      ],
     },
   ],
   howTo: [
@@ -68,34 +72,28 @@ const urlEncoderDecoderTool: ToolDefinition = {
   ],
   faqs: [
     {
-      question: "What is the difference between encodeURI and encodeURIComponent?",
-      answer:
-        "encodeURI is meant for a complete address and leaves characters such as slash, colon, question mark, ampersand and equals alone. encodeURIComponent is meant for one piece of a URL, such as a query value, and encodes those characters too. Using the wrong one is a frequent source of broken links.",
+      q: "What is the difference between encodeURI and encodeURIComponent?",
+      a: "encodeURI is meant for a complete address and leaves characters such as slash, colon, question mark, ampersand and equals alone. encodeURIComponent is meant for one piece of a URL, such as a query value, and encodes those characters too. Using the wrong one is a frequent source of broken links.",
     },
     {
-      question: "Why does a space become %20 in one mode and a plus sign in another?",
-      answer:
-        "Percent-encoding writes a space as %20. The older form encoding used by HTML forms writes it as a plus sign. Pick Form data mode when you need the plus sign, and use it when decoding query strings from forms.",
+      q: "Why does a space become %20 in one mode and a plus sign in another?",
+      a: "Percent-encoding writes a space as %20. The older form encoding used by HTML forms writes it as a plus sign. Pick Form data mode when you need the plus sign, and use it when decoding query strings from forms.",
     },
     {
-      question: "Is my URL or text sent to a server?",
-      answer:
-        "No. Encoding, decoding and inspection run in your browser, and large files are processed by a background worker on your own device.",
+      q: "Is my URL or text sent to a server?",
+      a: "No. Encoding, decoding and inspection run in your browser, and large files are processed by a background worker on your own device.",
     },
     {
-      question: "Why do I see %25 in my result?",
-      answer:
-        "%25 is an encoded percent sign. It usually means the text was encoded twice. Use Decode again, or tick Keep existing %XX sequences the next time you encode.",
+      q: "Why do I see %25 in my result?",
+      a: "%25 is an encoded percent sign. It usually means the text was encoded twice. Use Decode again, or tick Keep existing %XX sequences the next time you encode.",
     },
     {
-      question: "What happens with an invalid percent sequence like 100% or %ZZ?",
-      answer:
-        "Valid sequences are decoded and invalid ones are left unchanged. The tool shows how many were skipped, so decoding never stops with an error.",
+      q: "What happens with an invalid percent sequence like 100% or %ZZ?",
+      a: "Valid sequences are decoded and invalid ones are left unchanged. The tool shows how many were skipped, so decoding never stops with an error.",
     },
     {
-      question: "How large a file can I process?",
-      answer:
-        "Up to 600 MB. The file is read in chunks, a progress bar shows the status and you can cancel at any time. Large results are offered as a download, with a preview on screen.",
+      q: "How large a file can I process?",
+      a: "Up to 600 MB. The file is read in chunks, a progress bar shows the status and you can cancel at any time. Large results are offered as a download, with a preview on screen.",
     },
   ],
 };

@@ -1,5 +1,3 @@
-"use client";
-
 import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
 
@@ -42,6 +40,8 @@ export const TOOL_MAP: Record<string, ComponentType> = {
   "csv-to-json": CsvToJsonTool,
   "url-encoder-decoder": UrlEncoderDecoderTool,
 };
+
+export const TOOL_COMPONENTS = TOOL_MAP;
 
 export const toolComponents = TOOL_MAP;
 

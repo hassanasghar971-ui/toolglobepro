@@ -1,27 +1,28 @@
+"use client";
+
+import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
 
-import WordCounterTool from "./WordCounterTool";
-import IpLookupTool from "./IpLookupTool";
-import PasswordGeneratorTool from "./PasswordGeneratorTool";
-import Base64ConverterTool from "./Base64ConverterTool";
-import JsonFormatterTool from "./JsonFormatterTool";
-import SlugGeneratorTool from "./SlugGeneratorTool";
-import QrCodeGeneratorTool from "./QrCodeGeneratorTool";
-import HashGeneratorTool from "./HashGeneratorTool";
-import CaseConverterTool from "./CaseConverterTool";
-import ImageCompressorTool from "./ImageCompressorTool";
-import TextDiffCheckerTool from "./TextDiffCheckerTool";
-import LoremIpsumGeneratorTool from "./LoremIpsumGeneratorTool";
-import ColorConverterTool from "./ColorConverterTool";
-import UnitConverterTool from "./UnitConverterTool";
-import TimestampConverterTool from "./TimestampConverterTool";
-import MarkdownPreviewerTool from "./MarkdownPreviewerTool";
-import CsvToJsonTool from "./CsvToJsonTool";
-import UrlEncoderDecoderTool from "./UrlEncoderDecoderTool";
+const WordCounterTool = dynamic(() => import("./WordCounterTool"));
+const IpLookupTool = dynamic(() => import("./IpLookupTool"));
+const PasswordGeneratorTool = dynamic(() => import("./PasswordGeneratorTool"));
+const Base64ConverterTool = dynamic(() => import("./Base64ConverterTool"));
+const JsonFormatterTool = dynamic(() => import("./JsonFormatterTool"));
+const SlugGeneratorTool = dynamic(() => import("./SlugGeneratorTool"));
+const QrCodeGeneratorTool = dynamic(() => import("./QrCodeGeneratorTool"));
+const HashGeneratorTool = dynamic(() => import("./HashGeneratorTool"));
+const CaseConverterTool = dynamic(() => import("./CaseConverterTool"));
+const ImageCompressorTool = dynamic(() => import("./ImageCompressorTool"));
+const TextDiffCheckerTool = dynamic(() => import("./TextDiffCheckerTool"));
+const LoremIpsumGeneratorTool = dynamic(() => import("./LoremIpsumGeneratorTool"));
+const ColorConverterTool = dynamic(() => import("./ColorConverterTool"));
+const UnitConverterTool = dynamic(() => import("./UnitConverterTool"));
+const TimestampConverterTool = dynamic(() => import("./TimestampConverterTool"));
+const MarkdownPreviewerTool = dynamic(() => import("./markdown-previewer/MarkdownPreviewerTool"));
+const CsvToJsonTool = dynamic(() => import("./csv-to-json/CsvToJsonTool"));
+const UrlEncoderDecoderTool = dynamic(() => import("./url-encoder-decoder/UrlEncoderDecoderTool"));
 
-export type ToolComponent = ComponentType<Record<string, unknown>>;
-
-export const TOOL_MAP: Record<string, ToolComponent> = {
+export const TOOL_MAP: Record<string, ComponentType> = {
   "word-counter": WordCounterTool,
   "ip-lookup": IpLookupTool,
   "password-generator": PasswordGeneratorTool,
@@ -42,10 +43,9 @@ export const TOOL_MAP: Record<string, ToolComponent> = {
   "url-encoder-decoder": UrlEncoderDecoderTool,
 };
 
-export const TOOL_COMPONENTS = TOOL_MAP;
 export const toolComponents = TOOL_MAP;
 
-export function getToolComponent(slug: string): ToolComponent | undefined {
+export function getToolComponent(slug: string): ComponentType | undefined {
   return TOOL_MAP[slug];
 }
 

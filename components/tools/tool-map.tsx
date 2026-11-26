@@ -18,9 +18,9 @@ const LoremIpsumGeneratorTool = dynamic(() => import("./LoremIpsumGeneratorTool"
 const ColorConverterTool = dynamic(() => import("./ColorConverterTool"));
 const UnitConverterTool = dynamic(() => import("./UnitConverterTool"));
 const TimestampConverterTool = dynamic(() => import("./TimestampConverterTool"));
-const MarkdownPreviewerTool = dynamic(() => import("./markdown-previewer/MarkdownPreviewerTool"));
-const CsvToJsonTool = dynamic(() => import("./csv-to-json/CsvToJsonTool"));
-const UrlEncoderDecoderTool = dynamic(() => import("./url-encoder-decoder/UrlEncoderDecoderTool"));
+const MarkdownPreviewerTool = dynamic(() => import("./MarkdownPreviewerTool"));
+const CsvToJsonTool = dynamic(() => import("./CsvToJsonTool"));
+const UrlEncoderDecoderTool = dynamic(() => import("./UrlEncoderDecoderTool"));
 
 export const TOOL_MAP: Record<string, ComponentType> = {
   "word-counter": WordCounterTool,

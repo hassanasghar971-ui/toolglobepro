@@ -5,43 +5,30 @@ export const BRAND = {
 } as const;
 
 function cleanText(value?: string): string {
-  return (value ?? "").trim();
+  return typeof value === "string" ? value.trim() : "";
 }
 
-function toOrigin(value: string): string {
-  if (value === "") {
-    return "";
-  }
-  const withProtocol = value.startsWith("http") ? value : `https://${value}`;
+function toOrigin(raw: string): string {
+  const text = cleanText(raw);
+  if (text === "") return "";
+  const withProtocol = /^https?:\/\//i.test(text) ? text : `https://${text}`;
   return withProtocol.replace(/\/+$/, "");
 }
 
+/*
+  Resolution order: explicit site URL, then the Vercel production host,
+  then the current deployment host, then local development.
+  Only NEXT_PUBLIC_ variables are read so the server and the client
+  always resolve to the same value. Each read is a literal
+  process.env.NAME so Next.js can inline it at build time.
+*/
 function resolveSiteUrl(): string {
   const explicit = toOrigin(cleanText(process.env.NEXT_PUBLIC_SITE_URL));
-  if (explicit !== "") {
-    return explicit;
-  }
-  const vercelEnv = cleanText(
-    process.env.NEXT_PUBLIC_VERCEL_ENV ?? process.env.VERCEL_ENV,
-  );
-  const productionHost = toOrigin(
-    cleanText(
-      process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL ??
-        process.env.VERCEL_PROJECT_PRODUCTION_URL,
-    ),
-  );
-  const deploymentHost = toOrigin(
-    cleanText(process.env.NEXT_PUBLIC_VERCEL_URL ?? process.env.VERCEL_URL),
-  );
-  if (vercelEnv === "production" && productionHost !== "") {
-    return productionHost;
-  }
-  if (deploymentHost !== "") {
-    return deploymentHost;
-  }
-  if (productionHost !== "") {
-    return productionHost;
-  }
+  if (explicit !== "") return explicit;
+  const productionHost = toOrigin(cleanText(process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL));
+  if (productionHost !== "") return productionHost;
+  const deploymentHost = toOrigin(cleanText(process.env.NEXT_PUBLIC_VERCEL_URL));
+  if (deploymentHost !== "") return deploymentHost;
   return "http://localhost:3000";
 }
 

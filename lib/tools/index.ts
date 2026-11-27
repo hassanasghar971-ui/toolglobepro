@@ -1,15 +1,15 @@
-import { CATEGORIES, getCategory, resolveCategorySlug } from "../categories";
-import { ICON_NAMES } from "../types";
 import type {
   Category,
   CategorySlug,
   ContentSection,
   FaqItem,
   IconName,
-  SchemaType,
   ToolDefinition,
   ToolSummary,
-} from "../types";
+} from "@/lib/types";
+import { getCategory } from "@/lib/categories";
+import { LEGAL_UPDATED_ISO } from "@/lib/site";
+
 import wordCounterTool from "./word-counter";
 import ipLookupTool from "./ip-lookup";
 import passwordGeneratorTool from "./password-generator";
@@ -28,6 +28,7 @@ import timestampConverterTool from "./timestamp-converter";
 import markdownPreviewerTool from "./markdown-previewer";
 import csvToJsonTool from "./csv-to-json";
 import urlEncoderDecoderTool from "./url-encoder-decoder";
+import imageFormatConverter from "./image-format-converter";
 
 export type CategoryWithCount = Category & { count: number };
 
@@ -36,13 +37,6 @@ interface LooseFaq {
   a?: string;
   question?: string;
   answer?: string;
-}
-
-interface LooseSection {
-  heading?: string;
-  paragraphs?: string[];
-  body?: unknown;
-  content?: unknown;
 }
 
 interface LooseTool {
@@ -61,64 +55,118 @@ interface LooseTool {
   intro?: string;
   howTo?: string[];
   features?: string[];
-  article?: LooseSection[];
-  sections?: LooseSection[];
+  article?: ContentSection[];
+  sections?: ContentSection[];
   faqs?: LooseFaq[];
-  schemaType?: SchemaType;
   maxFileMB?: number;
   related?: string[];
-  datePublished?: string;
-  dateModified?: string;
 }
 
-const RAW_TOOLS: LooseTool[] = [
-  wordCounterTool as unknown as LooseTool,
-  ipLookupTool as unknown as LooseTool,
-  passwordGeneratorTool as unknown as LooseTool,
-  base64ConverterTool as unknown as LooseTool,
-  jsonFormatterTool as unknown as LooseTool,
-  slugGeneratorTool as unknown as LooseTool,
-  qrCodeGeneratorTool as unknown as LooseTool,
-  hashGeneratorTool as unknown as LooseTool,
-  caseConverterTool as unknown as LooseTool,
-  imageCompressorTool as unknown as LooseTool,
-  textDiffCheckerTool as unknown as LooseTool,
-  loremIpsumGeneratorTool as unknown as LooseTool,
-  colorConverterTool as unknown as LooseTool,
-  unitConverterTool as unknown as LooseTool,
-  timestampConverterTool as unknown as LooseTool,
-  markdownPreviewerTool as unknown as LooseTool,
-  csvToJsonTool as unknown as LooseTool,
-  urlEncoderDecoderTool as unknown as LooseTool,
+const RAW_TOOLS = [
+  wordCounterTool,
+  ipLookupTool,
+  passwordGeneratorTool,
+  base64ConverterTool,
+  jsonFormatterTool,
+  slugGeneratorTool,
+  qrCodeGeneratorTool,
+  hashGeneratorTool,
+  caseConverterTool,
+  imageCompressorTool,
+  textDiffCheckerTool,
+  loremIpsumGeneratorTool,
+  colorConverterTool,
+  unitConverterTool,
+  timestampConverterTool,
+  markdownPreviewerTool,
+  csvToJsonTool,
+  urlEncoderDecoderTool,
+  imageFormatConverter,
+] as unknown as LooseTool[];
+
+const CATEGORY_ORDER: CategorySlug[] = [
+  "text-tools",
+  "developer-tools",
+  "security-tools",
+  "network-tools",
+  "seo-tools",
 ];
 
-const DEFAULT_CATEGORY: CategorySlug = "developer-tools";
-const DEFAULT_PUBLISHED = "2026-01-01";
-const DEFAULT_MODIFIED = "2026-11-26";
-
-/* Central overrides. A tool listed here is placed in this category whatever its own definition says. A tool not listed uses the category written in its definition file. */
-const CATEGORY_BY_SLUG: Partial<Record<string, CategorySlug>> = {
+const CATEGORY_BY_SLUG: Record<string, CategorySlug> = {
   "word-counter": "text-tools",
   "ip-lookup": "network-tools",
   "password-generator": "security-tools",
   "base64-converter": "developer-tools",
   "json-formatter": "developer-tools",
   "slug-generator": "seo-tools",
-  "qr-code-generator": "generators",
+  "qr-code-generator": "developer-tools",
   "hash-generator": "security-tools",
   "case-converter": "text-tools",
-  "image-compressor": "image-tools",
+  "image-compressor": "seo-tools",
   "text-diff-checker": "text-tools",
-  "lorem-ipsum-generator": "generators",
-  "color-converter": "design-color-tools",
-  "unit-converter": "unit-converters",
-  "timestamp-converter": "time-date-tools",
-  "markdown-previewer": "document-text-helpers",
-  "csv-to-json": "data-tools",
-  "url-encoder-decoder": "encoding-decoding-tools",
+  "lorem-ipsum-generator": "text-tools",
+  "color-converter": "developer-tools",
+  "unit-converter": "developer-tools",
+  "timestamp-converter": "developer-tools",
+  "markdown-previewer": "developer-tools",
+  "csv-to-json": "developer-tools",
+  "url-encoder-decoder": "developer-tools",
 };
 
-const ICON_BY_SLUG: Partial<Record<string, IconName>> = {
+const CATEGORY_ALIASES: Record<string, CategorySlug> = {
+  text: "text-tools",
+  "text-tools": "text-tools",
+  developer: "developer-tools",
+  "developer-tools": "developer-tools",
+  converters: "developer-tools",
+  security: "security-tools",
+  "security-tools": "security-tools",
+  network: "network-tools",
+  "network-tools": "network-tools",
+  seo: "seo-tools",
+  "seo-tools": "seo-tools",
+};
+
+const VALID_ICONS = new Set<string>([
+  "search",
+  "sun",
+  "moon",
+  "menu",
+  "x",
+  "chevron-down",
+  "chevron-right",
+  "arrow-right",
+  "type",
+  "code",
+  "shield",
+  "globe",
+  "link",
+  "key",
+  "braces",
+  "file-text",
+  "upload",
+  "download",
+  "copy",
+  "check",
+  "alert",
+  "mail",
+  "message",
+  "home",
+  "sparkles",
+  "zap",
+  "lock",
+  "clock",
+  "hash",
+  "refresh",
+  "trash",
+  "map-pin",
+  "external",
+  "eye",
+  "trending-up",
+  "info",
+]);
+
+const ICON_BY_SLUG: Record<string, IconName> = {
   "word-counter": "type",
   "ip-lookup": "globe",
   "password-generator": "key",
@@ -135,205 +183,191 @@ const ICON_BY_SLUG: Partial<Record<string, IconName>> = {
   "unit-converter": "trending-up",
   "timestamp-converter": "clock",
   "markdown-previewer": "file-text",
-  "csv-to-json": "braces",
+  "csv-to-json": "code",
   "url-encoder-decoder": "link",
 };
 
-const VALID_ICONS = new Set<string>(ICON_NAMES);
+const MAX_FILE_MB_BY_SLUG: Record<string, number> = {
+  "image-compressor": 50,
+  "csv-to-json": 600,
+  "url-encoder-decoder": 600,
+  "markdown-previewer": 600,
+};
 
-function isIconName(value: string): value is IconName {
-  return VALID_ICONS.has(value);
-}
+const DEFAULT_HOW_TO: string[] = [
+  "Enter or paste your input into the workspace.",
+  "Adjust any available options to match your format or requirement.",
+  "Review the generated output, copy it to your clipboard, or download the result.",
+];
 
-function resolveCategory(raw: LooseTool): CategorySlug {
-  const mapped = CATEGORY_BY_SLUG[raw.slug];
-  if (mapped !== undefined) return mapped;
-  const own = resolveCategorySlug(raw.category ?? "");
-  return own ?? DEFAULT_CATEGORY;
-}
+const HOW_TO_BY_SLUG: Record<string, string[]> = {};
 
-function resolveIcon(raw: LooseTool): IconName {
-  const mapped = ICON_BY_SLUG[raw.slug];
-  if (mapped !== undefined) return mapped;
-  const rawIcon = (raw.icon ?? "").trim();
-  return isIconName(rawIcon) ? rawIcon : "code";
-}
-
-function toParagraphs(value: unknown): string[] {
-  if (Array.isArray(value)) {
-    return value.filter(
-      (p): p is string => typeof p === "string" && p.trim().length > 0,
-    );
+function featuresFor(maxFileMB: number | undefined): string[] {
+  const base = [
+    "Runs directly in your browser with zero server uploads",
+    "Instant results with copy and clear controls",
+    "Responsive layout for desktop and mobile browsers",
+  ];
+  if (maxFileMB !== undefined) {
+    base.splice(1, 0, `Supports files up to ${maxFileMB} MB`);
   }
-  if (typeof value === "string" && value.trim().length > 0) {
-    return value
-      .split(/\n{2,}/)
-      .map((p) => p.trim())
-      .filter((p) => p.length > 0);
+  return base;
+}
+
+function clipAtWord(text: string, max: number, ellipsis: boolean): string {
+  const clean = text.replace(/\s+/g, " ").trim();
+  if (clean.length <= max) return clean;
+  const limit = ellipsis ? max - 1 : max;
+  let cut = clean.slice(0, limit);
+  const lastSpace = cut.lastIndexOf(" ");
+  if (lastSpace > limit * 0.6) cut = cut.slice(0, lastSpace);
+  cut = cut.replace(/[\s,;:.-–—]+$/, "");
+  return ellipsis ? `${cut}…` : cut;
+}
+
+function deriveMetaTitle(seoTitle: string | undefined, name: string): string {
+  if (seoTitle) {
+    const head = seoTitle.split(/\s[–—|-]\s/)[0].trim();
+    if (head && head.length <= 44) return head;
   }
-  return [];
+  return clipAtWord(name, 44, false);
 }
 
-function normalizeSections(raw: LooseTool): ContentSection[] {
-  const hasSections = Array.isArray(raw.sections) && raw.sections.length > 0;
-  const source: LooseSection[] = hasSections
-    ? (raw.sections ?? [])
-    : Array.isArray(raw.article)
-      ? raw.article
-      : [];
-  const result: ContentSection[] = [];
-  for (const sec of source) {
-    let paragraphs = toParagraphs(sec.paragraphs);
-    if (paragraphs.length === 0) paragraphs = toParagraphs(sec.body);
-    if (paragraphs.length === 0) paragraphs = toParagraphs(sec.content);
-    if (paragraphs.length === 0) continue;
-    result.push({ heading: sec.heading ?? "Overview", paragraphs });
+function toFaqs(faqs: LooseFaq[] | undefined): FaqItem[] {
+  const out: FaqItem[] = [];
+  for (const faq of faqs ?? []) {
+    const q = faq.q ?? faq.question ?? "";
+    const a = faq.a ?? faq.answer ?? "";
+    if (q && a) out.push({ q, a });
   }
-  return result;
+  return out;
 }
 
-function normalizeFaqs(raw: LooseTool): FaqItem[] {
-  if (!Array.isArray(raw.faqs)) return [];
-  return raw.faqs
-    .map((item) => ({
-      q: item.q ?? item.question ?? "",
-      a: item.a ?? item.answer ?? "",
-    }))
-    .filter((item) => item.q.length > 0 && item.a.length > 0);
-}
-
-function normalizeTool(raw: LooseTool): ToolDefinition {
-  const category = resolveCategory(raw);
-  const icon = resolveIcon(raw);
-  const fallbackDesc = raw.description ?? raw.tagline ?? raw.name;
-  const metaDesc = raw.metaDescription ?? raw.seoDescription ?? fallbackDesc;
-  const metaTitle = raw.metaTitle ?? raw.seoTitle ?? raw.name;
-  const sections = normalizeSections(raw);
-  const firstPara = sections[0]?.paragraphs[0] ?? fallbackDesc;
+function splitArticle(
+  article: ContentSection[] | undefined,
+  sections: ContentSection[] | undefined,
+  introText: string | undefined
+): { intro: string; sections: ContentSection[] } {
+  if (sections && sections.length > 0) {
+    const cleaned = sections.map((section) => ({
+      heading: section.heading,
+      paragraphs: [...section.paragraphs],
+    }));
+    return {
+      intro: introText ?? "",
+      sections: cleaned.filter((section) => section.paragraphs.length > 0),
+    };
+  }
+  const source = (article ?? []).map((section) => ({
+    heading: section.heading,
+    paragraphs: [...section.paragraphs],
+  }));
+  let intro = introText ?? "";
+  if (!intro && source.length > 0 && source[0].paragraphs.length > 0) {
+    intro = source[0].paragraphs.shift() ?? "";
+  }
   return {
-    slug: raw.slug,
-    name: raw.name,
-    h1: raw.h1 ?? raw.name,
-    tagline: raw.tagline ?? fallbackDesc,
-    metaTitle,
-    metaDescription: metaDesc,
-    category,
-    icon,
-    keywords: Array.isArray(raw.keywords) ? raw.keywords : [raw.name.toLowerCase()],
-    intro: raw.intro ?? firstPara,
-    howTo:
-      Array.isArray(raw.howTo) && raw.howTo.length > 0
-        ? raw.howTo
-        : [
-            "Enter your input in the tool workspace.",
-            "Review the output generated locally in your browser.",
-            "Copy or download the result.",
-          ],
-    sections,
-    faqs: normalizeFaqs(raw),
-    features:
-      Array.isArray(raw.features) && raw.features.length > 0
-        ? raw.features
-        : [
-            "100% browser-based processing",
-            "No server data upload",
-            "Instant copy and export",
-          ],
-    schemaType: raw.schemaType ?? "WebApplication",
-    maxFileMB: raw.maxFileMB,
-    related: raw.related,
-    datePublished: raw.datePublished ?? DEFAULT_PUBLISHED,
-    dateModified: raw.dateModified ?? DEFAULT_MODIFIED,
+    intro,
+    sections: source.filter((section) => section.paragraphs.length > 0),
   };
 }
 
-function assertUniqueSlugs(list: ToolDefinition[]): void {
-  const seen = new Set<string>();
-  for (const tool of list) {
-    if (seen.has(tool.slug)) {
-      throw new Error("Duplicate tool slug in registry: " + tool.slug);
-    }
-    seen.add(tool.slug);
-  }
+function adapt(raw: LooseTool): ToolDefinition {
+  const slug = raw.slug;
+  const category: CategorySlug =
+    CATEGORY_BY_SLUG[slug] ?? CATEGORY_ALIASES[raw.category ?? ""] ?? "text-tools";
+  const icon: IconName =
+    ICON_BY_SLUG[slug] ??
+    ((raw.icon && VALID_ICONS.has(raw.icon) ? raw.icon : "sparkles") as IconName);
+  const maxFileMB = MAX_FILE_MB_BY_SLUG[slug] ?? raw.maxFileMB;
+  const { intro, sections } = splitArticle(raw.article, raw.sections, raw.intro);
+  const description = raw.description ?? raw.tagline ?? raw.name;
+  const definition: ToolDefinition = {
+    slug,
+    name: raw.name,
+    h1: raw.h1 ?? `Free ${raw.name} Online`,
+    tagline: raw.tagline ?? description,
+    metaTitle: deriveMetaTitle(raw.metaTitle ?? raw.seoTitle, raw.name),
+    metaDescription: clipAtWord(
+      raw.metaDescription ?? raw.seoDescription ?? description,
+      160,
+      true
+    ),
+    category,
+    icon,
+    keywords: raw.keywords ?? [],
+    intro: intro || description,
+    howTo: raw.howTo ?? HOW_TO_BY_SLUG[slug] ?? DEFAULT_HOW_TO,
+    sections,
+    faqs: toFaqs(raw.faqs),
+    features: raw.features ?? featuresFor(maxFileMB),
+    schemaType: "WebApplication",
+    related: raw.related,
+    datePublished: LEGAL_UPDATED_ISO,
+    dateModified: LEGAL_UPDATED_ISO,
+  };
+  if (maxFileMB !== undefined) definition.maxFileMB = maxFileMB;
+  return definition;
 }
 
-export const TOOLS: ToolDefinition[] = RAW_TOOLS.map(normalizeTool);
-
-assertUniqueSlugs(TOOLS);
+export const tools: ToolDefinition[] = RAW_TOOLS.map(adapt);
 
 export function getAllTools(): ToolDefinition[] {
-  return TOOLS;
+  return tools;
 }
 
-export function getAllToolSlugs(): string[] {
-  return TOOLS.map((t) => t.slug);
+export function getToolBySlug(slug: string): ToolDefinition | undefined {
+  return tools.find((tool) => tool.slug === slug);
 }
 
-export function getToolBySlug(slug: string) {
-  return TOOLS.find((t) => t.slug === slug);
-}
-
-export function getToolsByCategory(categorySlug: string): ToolDefinition[] {
-  return TOOLS.filter((t) => t.category === categorySlug);
+export function getToolsByCategory(slug: string): ToolDefinition[] {
+  return tools.filter((tool) => tool.category === slug);
 }
 
 export function getRelatedTools(
   toolOrSlug: ToolDefinition | string,
-  limit = 3,
+  limit = 3
 ): ToolDefinition[] {
-  const current =
-    typeof toolOrSlug === "string" ? getToolBySlug(toolOrSlug) : toolOrSlug;
-  if (current === undefined) return TOOLS.slice(0, limit);
-
-  const explicit: ToolDefinition[] = [];
-  for (const slug of current.related ?? []) {
-    const found = getToolBySlug(slug);
-    if (
-      found !== undefined &&
-      found.slug !== current.slug &&
-      !explicit.includes(found)
-    ) {
-      explicit.push(found);
+  const tool = typeof toolOrSlug === "string" ? getToolBySlug(toolOrSlug) : toolOrSlug;
+  if (!tool) return [];
+  const picked: ToolDefinition[] = [];
+  const seen = new Set<string>([tool.slug]);
+  const add = (candidate: ToolDefinition | undefined) => {
+    if (candidate && !seen.has(candidate.slug) && picked.length < limit) {
+      seen.add(candidate.slug);
+      picked.push(candidate);
     }
-  }
+  };
+  (tool.related ?? []).forEach((slug) => add(getToolBySlug(slug)));
+  tools.filter((t) => t.category === tool.category).forEach(add);
+  tools.forEach(add);
+  return picked;
+}
 
-  const sameCategory = TOOLS.filter(
-    (t) =>
-      t.slug !== current.slug &&
-      t.category === current.category &&
-      !explicit.includes(t),
-  );
-  const others = TOOLS.filter(
-    (t) =>
-      t.slug !== current.slug &&
-      !explicit.includes(t) &&
-      !sameCategory.includes(t),
-  );
-  return [...explicit, ...sameCategory, ...others].slice(0, limit);
+export function getActiveCategories(): CategoryWithCount[] {
+  const result: CategoryWithCount[] = [];
+  for (const slug of CATEGORY_ORDER) {
+    const category = getCategory(slug);
+    if (!category) continue;
+    const count = getToolsByCategory(slug).length;
+    if (count > 0) result.push({ ...category, count });
+  }
+  return result;
 }
 
 export function toToolSummary(tool: ToolDefinition): ToolSummary {
-  const category = getCategory(tool.category);
-  return {
+  const categoryMeta = getCategory(tool.category);
+  const summary: ToolSummary = {
     slug: tool.slug,
     name: tool.name,
     tagline: tool.tagline,
     category: tool.category,
-    categoryName: category?.name ?? "",
+    categoryName: categoryMeta?.name ?? tool.category,
     icon: tool.icon,
     keywords: tool.keywords,
-    maxFileMB: tool.maxFileMB,
   };
+  if (tool.maxFileMB !== undefined) summary.maxFileMB = tool.maxFileMB;
+  return summary;
 }
 
 export { toToolSummary as toSummary };
-
-export function getActiveCategories(): CategoryWithCount[] {
-  const counts = new Map<string, number>();
-  for (const tool of TOOLS) {
-    counts.set(tool.category, (counts.get(tool.category) ?? 0) + 1);
-  }
-  return CATEGORIES.map((c) => ({ ...c, count: counts.get(c.slug) ?? 0 })).filter(
-    (c) => c.count > 0,
-  );
-}

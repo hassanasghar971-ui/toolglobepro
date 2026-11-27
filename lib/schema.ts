@@ -1,5 +1,5 @@
 import { SITE, absoluteUrl, whatsappLink } from "./site";
-import type { Category, FaqItem, ToolDefinition } from "./types";
+import type { Category, CategorySlug, FaqItem, ToolDefinition } from "./types";
 
 type Json = Record<string, unknown>;
 
@@ -13,17 +13,9 @@ export function organizationSchema(): Json {
     "@id": ORG_ID,
     name: SITE.name,
     url: SITE.url,
-    logo: {
-      "@type": "ImageObject",
-      url: absoluteUrl("/icon"),
-      width: 512,
-      height: 512,
-    },
+    logo: { "@type": "ImageObject", url: absoluteUrl("/icon"), width: 512, height: 512 },
     email: SITE.owner.email,
-    founder: {
-      "@type": "Person",
-      name: SITE.owner.name,
-    },
+    founder: { "@type": "Person", name: SITE.owner.name },
     contactPoint: [
       {
         "@type": "ContactPoint",
@@ -69,20 +61,27 @@ export function faqSchema(faqs: FaqItem[]): Json {
     mainEntity: faqs.map((f) => ({
       "@type": "Question",
       name: f.q,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: f.a,
-      },
+      acceptedAnswer: { "@type": "Answer", text: f.a },
     })),
   };
 }
 
-const APP_CATEGORY: Record<string, string> = {
-  "text-tools": "UtilitiesApplication",
+/*
+  Only categories that differ from the default are listed here.
+  Any category not listed, including future ones, uses the default.
+*/
+const DEFAULT_APP_CATEGORY = "UtilitiesApplication";
+
+const APP_CATEGORY_OVERRIDES: Partial<Record<CategorySlug, string>> = {
   "developer-tools": "DeveloperApplication",
+  "data-tools": "DeveloperApplication",
+  "encoding-decoding-tools": "DeveloperApplication",
   "security-tools": "SecurityApplication",
-  "network-tools": "UtilitiesApplication",
+  "privacy-tools": "SecurityApplication",
   "seo-tools": "BusinessApplication",
+  "productivity-tools": "BusinessApplication",
+  "image-tools": "MultimediaApplication",
+  "design-color-tools": "DesignApplication",
 };
 
 export function toolSchema(tool: ToolDefinition): Json {
@@ -94,23 +93,16 @@ export function toolSchema(tool: ToolDefinition): Json {
     name: tool.name,
     url,
     description: tool.metaDescription,
-    applicationCategory: APP_CATEGORY[tool.category] ?? "UtilitiesApplication",
+    applicationCategory: APP_CATEGORY_OVERRIDES[tool.category] ?? DEFAULT_APP_CATEGORY,
     operatingSystem: "Any (web browser)",
     browserRequirements: "Requires JavaScript and a modern web browser",
     inLanguage: "en",
     isAccessibleForFree: true,
     featureList: tool.features,
-    offers: {
-      "@type": "Offer",
-      price: "0",
-      priceCurrency: "USD",
-    },
+    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
     datePublished: tool.datePublished,
     dateModified: tool.dateModified,
-    author: {
-      "@type": "Person",
-      name: SITE.owner.name,
-    },
+    author: { "@type": "Person", name: SITE.owner.name },
     publisher: { "@id": ORG_ID },
   };
 }
@@ -129,10 +121,7 @@ export function itemListSchema(name: string, items: { name: string; path: string
   };
 }
 
-export function collectionPageSchema(
-  category: Category,
-  items: { name: string; path: string }[],
-): Json {
+export function collectionPageSchema(category: Category, items: { name: string; path: string }[]): Json {
   const url = absoluteUrl(`/category/${category.slug}`);
   return {
     "@context": CTX,
@@ -150,7 +139,7 @@ export function webPageSchema(opts: {
   name: string;
   description: string;
   path: string;
-  type?: "WebPage" | "AboutPage" | "ContactPage";
+  type?: string;
   modified?: string;
 }): Json {
   const url = absoluteUrl(opts.path);

@@ -10,6 +10,7 @@ import type {
 import { getCategory } from "@/lib/categories";
 import { LEGAL_UPDATED_ISO } from "@/lib/site";
 
+import { EXTRA_TOOLS } from "./extra";
 import wordCounterTool from "./word-counter";
 import ipLookupTool from "./ip-lookup";
 import passwordGeneratorTool from "./password-generator";
@@ -62,8 +63,15 @@ interface LooseTool {
   faqs?: LooseFaq[];
   maxFileMB?: number;
   related?: string[];
+  datePublished?: string;
+  dateModified?: string;
 }
 
+/*
+  Older tools are listed here. New tools go into ./extra.ts, which is
+  spread in at the end. A new tool only needs its own definition file:
+  its category and icon are read from that file.
+*/
 const RAW_TOOLS = [
   wordCounterTool,
   ipLookupTool,
@@ -85,94 +93,78 @@ const RAW_TOOLS = [
   urlEncoderDecoderTool,
   imageFormatConverterTool,
   imageMetadataRemoverTool,
+  ...EXTRA_TOOLS,
 ] as unknown as LooseTool[];
 
-const CATEGORY_ORDER: CategorySlug[] = [
+const FALLBACK_CATEGORY: CategorySlug = "text-tools";
+
+/*
+  Display order only. A category not listed here still appears,
+  after the listed ones, as soon as one tool uses it.
+*/
+const PREFERRED_ORDER: string[] = [
   "text-tools",
   "developer-tools",
   "security-tools",
   "network-tools",
   "seo-tools",
+  "data-tools",
+  "file-tools",
   "converters",
+  "encoding-decoding-tools",
+  "image-tools",
+  "design-color-tools",
+  "social-media-tools",
+  "generators",
+  "time-date-tools",
+  "math-calculators",
+  "unit-converters",
+  "web-utility-tools",
+  "productivity-tools",
   "privacy-tools",
+  "document-text-helpers",
 ];
 
+/* Overrides for the older tools. New tools do not need an entry here. */
 const CATEGORY_BY_SLUG: Record<string, CategorySlug> = {
   "word-counter": "text-tools",
-  "ip-lookup": "network-tools",
-  "password-generator": "security-tools",
+  "case-converter": "text-tools",
+  "text-diff-checker": "text-tools",
   "base64-converter": "developer-tools",
   "json-formatter": "developer-tools",
-  "slug-generator": "seo-tools",
-  "qr-code-generator": "developer-tools",
+  "password-generator": "security-tools",
   "hash-generator": "security-tools",
-  "case-converter": "text-tools",
-  "image-compressor": "seo-tools",
-  "text-diff-checker": "text-tools",
-  "lorem-ipsum-generator": "text-tools",
-  "color-converter": "developer-tools",
-  "unit-converter": "developer-tools",
-  "timestamp-converter": "developer-tools",
-  "markdown-previewer": "developer-tools",
-  "csv-to-json": "developer-tools",
-  "url-encoder-decoder": "developer-tools",
+  "qr-code-generator": "generators",
+  "lorem-ipsum-generator": "generators",
+  "ip-lookup": "network-tools",
+  "slug-generator": "seo-tools",
+  "image-compressor": "image-tools",
+  "color-converter": "design-color-tools",
+  "unit-converter": "unit-converters",
+  "timestamp-converter": "time-date-tools",
+  "markdown-previewer": "document-text-helpers",
+  "csv-to-json": "data-tools",
+  "url-encoder-decoder": "encoding-decoding-tools",
   "image-format-converter": "converters",
   "image-metadata-remover": "privacy-tools",
 };
 
 const CATEGORY_ALIASES: Record<string, CategorySlug> = {
   text: "text-tools",
-  "text-tools": "text-tools",
   developer: "developer-tools",
-  "developer-tools": "developer-tools",
-  converters: "converters",
-  "privacy-tools": "privacy-tools",
   privacy: "privacy-tools",
   security: "security-tools",
-  "security-tools": "security-tools",
   network: "network-tools",
-  "network-tools": "network-tools",
   seo: "seo-tools",
-  "seo-tools": "seo-tools",
 };
 
 const VALID_ICONS = new Set<string>([
-  "search",
-  "sun",
-  "moon",
-  "menu",
-  "x",
-  "chevron-down",
-  "chevron-right",
-  "arrow-right",
-  "type",
-  "code",
-  "shield",
-  "globe",
-  "link",
-  "key",
-  "braces",
-  "file-text",
-  "upload",
-  "download",
-  "copy",
-  "check",
-  "alert",
-  "mail",
-  "message",
-  "home",
-  "sparkles",
-  "zap",
-  "lock",
-  "clock",
-  "hash",
-  "refresh",
-  "trash",
-  "map-pin",
-  "external",
-  "eye",
-  "trending-up",
-  "info",
+  "search", "sun", "moon", "menu", "x", "chevron-down",
+  "chevron-right", "arrow-right", "type", "code", "shield", "globe",
+  "link", "key", "braces", "file-text", "upload", "download",
+  "copy", "check", "alert", "mail", "message", "home",
+  "sparkles", "zap", "lock", "clock", "hash", "refresh",
+  "trash", "map-pin", "external", "eye", "trending-up", "info",
 ]);
 
 const ICON_BY_SLUG: Record<string, IconName> = {
@@ -213,16 +205,14 @@ const DEFAULT_HOW_TO: string[] = [
   "Review the generated output, copy it to your clipboard, or download the result.",
 ];
 
-const HOW_TO_BY_SLUG: Record<string, string[]> = {};
-
-function featuresFor(maxFileMB: number | undefined): string[] {
+function featuresFor(maxFileMB?: number): string[] {
   const base = [
     "Runs directly in your browser with zero server uploads",
     "Instant results with copy and clear controls",
     "Responsive layout for desktop and mobile browsers",
   ];
   if (maxFileMB !== undefined) {
-    base.splice(1, 0, `Supports files up to ${maxFileMB} MB`);
+    base.splice(1, 0, "Supports files up to " + maxFileMB + " MB");
   }
   return base;
 }
@@ -234,19 +224,28 @@ function clipAtWord(text: string, max: number, ellipsis: boolean): string {
   let cut = clean.slice(0, limit);
   const lastSpace = cut.lastIndexOf(" ");
   if (lastSpace > limit * 0.6) cut = cut.slice(0, lastSpace);
-  cut = cut.replace(/[\s,;:.-–—]+$/, "");
-  return ellipsis ? `${cut}…` : cut;
+  cut = cut.replace(/[\s,;:.\u2013\u2014-]+$/, "");
+  return ellipsis ? cut + "\u2026" : cut;
 }
 
-function deriveMetaTitle(seoTitle: string | undefined, name: string): string {
+function deriveMetaTitle(name: string, seoTitle?: string): string {
   if (seoTitle) {
-    const head = seoTitle.split(/\s[–—|-]\s/)[0].trim();
+    const head = (seoTitle.split(/\s[\u2013\u2014\u007c-]\s/)[0] ?? "").trim();
     if (head && head.length <= 44) return head;
   }
   return clipAtWord(name, 44, false);
 }
 
-function toFaqs(faqs: LooseFaq[] | undefined): FaqItem[] {
+function pickDate(fallback: string, value?: string): string {
+  if (value === undefined) return fallback;
+  if (!/^\d{4}-\d{2}-\d{2}/.test(value)) return fallback;
+  const parsed = Date.parse(value);
+  if (Number.isNaN(parsed)) return fallback;
+  if (parsed > Date.now() + 86400000) return fallback;
+  return value;
+}
+
+function toFaqs(faqs?: LooseFaq[]): FaqItem[] {
   const out: FaqItem[] = [];
   for (const faq of faqs ?? []) {
     const q = faq.q ?? faq.question ?? "";
@@ -256,80 +255,110 @@ function toFaqs(faqs: LooseFaq[] | undefined): FaqItem[] {
   return out;
 }
 
-function splitArticle(
-  article: ContentSection[] | undefined,
-  sections: ContentSection[] | undefined,
-  introText: string | undefined
-): { intro: string; sections: ContentSection[] } {
-  if (sections && sections.length > 0) {
-    const cleaned = sections.map((section) => ({
-      heading: section.heading,
-      paragraphs: [...section.paragraphs],
-    }));
-    return {
-      intro: introText ?? "",
-      sections: cleaned.filter((section) => section.paragraphs.length > 0),
-    };
-  }
-  const source = (article ?? []).map((section) => ({
+function copySections(list: ContentSection[]): ContentSection[] {
+  return list.map((section) => ({
     heading: section.heading,
     paragraphs: [...section.paragraphs],
   }));
+}
+
+function splitArticle(
+  introText?: string,
+  sections?: ContentSection[],
+  article?: ContentSection[]
+): { intro: string; sections: ContentSection[] } {
+  if (sections && sections.length > 0) {
+    return {
+      intro: introText ?? "",
+      sections: copySections(sections).filter((s) => s.paragraphs.length > 0),
+    };
+  }
+  const source = copySections(article ?? []);
   let intro = introText ?? "";
-  if (!intro && source.length > 0 && source[0].paragraphs.length > 0) {
-    intro = source[0].paragraphs.shift() ?? "";
+  const first = source[0];
+  if (!intro && first && first.paragraphs.length > 0) {
+    intro = first.paragraphs.shift() ?? "";
   }
   return {
     intro,
-    sections: source.filter((section) => section.paragraphs.length > 0),
+    sections: source.filter((s) => s.paragraphs.length > 0),
   };
+}
+
+function resolveCategory(raw: LooseTool): CategorySlug {
+  const central = CATEGORY_BY_SLUG[raw.slug];
+  if (central) return central;
+  const own = raw.category ?? "";
+  if (getCategory(own as CategorySlug)) return own as CategorySlug;
+  const alias = CATEGORY_ALIASES[own];
+  if (alias) return alias;
+  return FALLBACK_CATEGORY;
+}
+
+function resolveIcon(raw: LooseTool): IconName {
+  const central = ICON_BY_SLUG[raw.slug];
+  if (central) return central;
+  const own = raw.icon ?? "";
+  return (VALID_ICONS.has(own) ? own : "sparkles") as IconName;
 }
 
 function adapt(raw: LooseTool): ToolDefinition {
   const slug = raw.slug;
-  const category: CategorySlug =
-    CATEGORY_BY_SLUG[slug] ?? CATEGORY_ALIASES[raw.category ?? ""] ?? "text-tools";
-  const icon: IconName =
-    ICON_BY_SLUG[slug] ??
-    ((raw.icon && VALID_ICONS.has(raw.icon) ? raw.icon : "sparkles") as IconName);
   const maxFileMB = MAX_FILE_MB_BY_SLUG[slug] ?? raw.maxFileMB;
-  const { intro, sections } = splitArticle(raw.article, raw.sections, raw.intro);
+  const { intro, sections } = splitArticle(raw.intro, raw.sections, raw.article);
   const description = raw.description ?? raw.tagline ?? raw.name;
   const definition: ToolDefinition = {
     slug,
     name: raw.name,
-    h1: raw.h1 ?? `Free ${raw.name} Online`,
+    h1: raw.h1 ?? "Free " + raw.name + " Online",
     tagline: raw.tagline ?? description,
-    metaTitle: deriveMetaTitle(raw.metaTitle ?? raw.seoTitle, raw.name),
+    metaTitle: deriveMetaTitle(raw.name, raw.metaTitle ?? raw.seoTitle),
     metaDescription: clipAtWord(
       raw.metaDescription ?? raw.seoDescription ?? description,
       160,
       true
     ),
-    category,
-    icon,
+    category: resolveCategory(raw),
+    icon: resolveIcon(raw),
     keywords: raw.keywords ?? [],
     intro: intro || description,
-    howTo: raw.howTo ?? HOW_TO_BY_SLUG[slug] ?? DEFAULT_HOW_TO,
+    howTo: raw.howTo ?? DEFAULT_HOW_TO,
     sections,
     faqs: toFaqs(raw.faqs),
     features: raw.features ?? featuresFor(maxFileMB),
     schemaType: "WebApplication",
     related: raw.related,
-    datePublished: LEGAL_UPDATED_ISO,
-    dateModified: LEGAL_UPDATED_ISO,
+    datePublished: pickDate(LEGAL_UPDATED_ISO, raw.datePublished),
+    dateModified: pickDate(LEGAL_UPDATED_ISO, raw.dateModified),
   };
   if (maxFileMB !== undefined) definition.maxFileMB = maxFileMB;
   return definition;
 }
 
+function assertUniqueSlugs(list: ToolDefinition[]): void {
+  const seen = new Set<string>();
+  for (const item of list) {
+    if (seen.has(item.slug)) {
+      throw new Error("Duplicate tool slug: " + item.slug);
+    }
+    seen.add(item.slug);
+  }
+}
+
 export const tools: ToolDefinition[] = RAW_TOOLS.map(adapt);
+assertUniqueSlugs(tools);
+
+export const TOOLS = tools;
 
 export function getAllTools(): ToolDefinition[] {
   return tools;
 }
 
-export function getToolBySlug(slug: string): ToolDefinition | undefined {
+export function getAllToolSlugs(): string[] {
+  return tools.map((tool) => tool.slug);
+}
+
+export function getToolBySlug(slug: string) {
   return tools.find((tool) => tool.slug === slug);
 }
 
@@ -337,33 +366,44 @@ export function getToolsByCategory(slug: string): ToolDefinition[] {
   return tools.filter((tool) => tool.category === slug);
 }
 
-export function getRelatedTools(
-  toolOrSlug: ToolDefinition | string,
-  limit = 3
-): ToolDefinition[] {
-  const tool = typeof toolOrSlug === "string" ? getToolBySlug(toolOrSlug) : toolOrSlug;
+export function getRelatedTools(toolOrSlug: string, limit?: number): ToolDefinition[];
+export function getRelatedTools(toolOrSlug: ToolDefinition, limit?: number): ToolDefinition[];
+export function getRelatedTools(toolOrSlug: unknown, limit = 3): ToolDefinition[] {
+  const tool =
+    typeof toolOrSlug === "string"
+      ? getToolBySlug(toolOrSlug)
+      : (toolOrSlug as ToolDefinition);
   if (!tool) return [];
   const picked: ToolDefinition[] = [];
   const seen = new Set<string>([tool.slug]);
-  const add = (candidate: ToolDefinition | undefined) => {
+  const add = (candidate?: ToolDefinition) => {
     if (candidate && !seen.has(candidate.slug) && picked.length < limit) {
       seen.add(candidate.slug);
       picked.push(candidate);
     }
   };
-  (tool.related ?? []).forEach((slug) => add(getToolBySlug(slug)));
-  tools.filter((t) => t.category === tool.category).forEach(add);
-  tools.forEach(add);
+  (tool.related ?? []).forEach((s) => add(getToolBySlug(s)));
+  tools.filter((t) => t.category === tool.category).forEach((t) => add(t));
+  tools.forEach((t) => add(t));
   return picked;
 }
 
+function orderOf(slug: string): number {
+  const index = PREFERRED_ORDER.indexOf(slug);
+  return index === -1 ? PREFERRED_ORDER.length : index;
+}
+
 export function getActiveCategories(): CategoryWithCount[] {
+  const slugs: string[] = [];
+  for (const tool of tools) {
+    if (!slugs.includes(tool.category)) slugs.push(tool.category);
+  }
+  slugs.sort((a, b) => orderOf(a) - orderOf(b));
   const result: CategoryWithCount[] = [];
-  for (const slug of CATEGORY_ORDER) {
-    const category = getCategory(slug);
+  for (const slug of slugs) {
+    const category = getCategory(slug as CategorySlug);
     if (!category) continue;
-    const count = getToolsByCategory(slug).length;
-    if (count > 0) result.push({ ...category, count });
+    result.push({ ...category, count: getToolsByCategory(slug).length });
   }
   return result;
 }

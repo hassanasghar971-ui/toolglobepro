@@ -28,7 +28,7 @@ import timestampConverterTool from "./timestamp-converter";
 import markdownPreviewerTool from "./markdown-previewer";
 import csvToJsonTool from "./csv-to-json";
 import urlEncoderDecoderTool from "./url-encoder-decoder";
-import imageFormatConverter from "./image-format-converter";
+import imageMetadataRemover from "./image-metadata-remover";
 
 export type CategoryWithCount = Category & { count: number };
 
@@ -81,7 +81,7 @@ const RAW_TOOLS = [
   markdownPreviewerTool,
   csvToJsonTool,
   urlEncoderDecoderTool,
-  imageFormatConverter,
+  imageMetadataRemover,
 ] as unknown as LooseTool[];
 
 const CATEGORY_ORDER: CategorySlug[] = [

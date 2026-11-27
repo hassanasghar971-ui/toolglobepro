@@ -31,6 +31,7 @@ import urlEncoderDecoderTool from "./url-encoder-decoder";
 import imageMetadataRemover from "./image-metadata-remover";
 
 export type CategoryWithCount = Category & { count: number };
+export type ToolSlug = string;
 
 interface LooseFaq {
   q?: string;

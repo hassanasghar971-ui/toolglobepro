@@ -1,52 +1,67 @@
+"use client";
+
 import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
+import type { ToolSlug } from "@/lib/tools";
 
-const WordCounterTool = dynamic(() => import("./WordCounterTool"));
-const IpLookupTool = dynamic(() => import("./IpLookupTool"));
-const PasswordGeneratorTool = dynamic(() => import("./PasswordGeneratorTool"));
-const Base64ConverterTool = dynamic(() => import("./Base64ConverterTool"));
-const JsonFormatterTool = dynamic(() => import("./JsonFormatterTool"));
-const SlugGeneratorTool = dynamic(() => import("./SlugGeneratorTool"));
-const QrCodeGeneratorTool = dynamic(() => import("./QrCodeGeneratorTool"));
-const HashGeneratorTool = dynamic(() => import("./HashGeneratorTool"));
-const CaseConverterTool = dynamic(() => import("./CaseConverterTool"));
-const ImageCompressorTool = dynamic(() => import("./ImageCompressorTool"));
-const TextDiffCheckerTool = dynamic(() => import("./TextDiffCheckerTool"));
-const LoremIpsumGeneratorTool = dynamic(() => import("./LoremIpsumGeneratorTool"));
-const ColorConverterTool = dynamic(() => import("./ColorConverterTool"));
-const UnitConverterTool = dynamic(() => import("./UnitConverterTool"));
-const TimestampConverterTool = dynamic(() => import("./TimestampConverterTool"));
-const MarkdownPreviewerTool = dynamic(() => import("./MarkdownPreviewerTool"));
-const CsvToJsonTool = dynamic(() => import("./CsvToJsonTool"));
-const UrlEncoderDecoderTool = dynamic(() => import("./UrlEncoderDecoderTool"));
+/*
+  Maps every registered tool slug to its <PascalSlug>Tool component.
 
-export const TOOL_MAP: Record<string, ComponentType> = {
-  "word-counter": WordCounterTool,
-  "ip-lookup": IpLookupTool,
-  "password-generator": PasswordGeneratorTool,
-  "base64-converter": Base64ConverterTool,
-  "json-formatter": JsonFormatterTool,
-  "slug-generator": SlugGeneratorTool,
-  "qr-code-generator": QrCodeGeneratorTool,
-  "hash-generator": HashGeneratorTool,
-  "case-converter": CaseConverterTool,
-  "image-compressor": ImageCompressorTool,
-  "text-diff-checker": TextDiffCheckerTool,
-  "lorem-ipsum-generator": LoremIpsumGeneratorTool,
-  "color-converter": ColorConverterTool,
-  "unit-converter": UnitConverterTool,
-  "timestamp-converter": TimestampConverterTool,
+  - Components are code-split with next/dynamic but still server-rendered
+    (no ssr: false), so tool pages stay fully indexable.
+  - Record<ToolSlug, ...> makes a missing mapping a compile-time error.
+*/
+
+function ToolSkeleton() {
+  return (
+    <div className="card" aria-busy="true" aria-live="polite">
+      <div className="h-6 w-1/3 animate-pulse rounded bg-current opacity-10" />
+      <div className="mt-4 h-40 w-full animate-pulse rounded bg-current opacity-10" />
+      <div className="mt-4 h-10 w-32 animate-pulse rounded bg-current opacity-10" />
+      <span className="sr-only">Loading tool…</span>
+    </div>
+  );
+}
+
+const MarkdownPreviewerTool = dynamic(
+  () =>
+    import("./markdown-previewer/MarkdownPreviewerTool").then(
+      (mod) => mod.MarkdownPreviewerTool,
+    ),
+  { loading: () => <ToolSkeleton /> },
+);
+
+const CsvToJsonTool = dynamic(
+  () => import("./csv-to-json/CsvToJsonTool").then((mod) => mod.CsvToJsonTool),
+  { loading: () => <ToolSkeleton /> },
+);
+
+const UrlEncoderDecoderTool = dynamic(
+  () =>
+    import("./url-encoder-decoder/UrlEncoderDecoderTool").then(
+      (mod) => mod.UrlEncoderDecoderTool,
+    ),
+  { loading: () => <ToolSkeleton /> },
+);
+
+const ImageFormatConverterTool = dynamic(() => import("./ImageFormatConverterTool"));
+
+export const TOOL_COMPONENTS: Record<ToolSlug, ComponentType> = {
   "markdown-previewer": MarkdownPreviewerTool,
   "csv-to-json": CsvToJsonTool,
   "url-encoder-decoder": UrlEncoderDecoderTool,
+  "image-format-converter": ImageFormatConverterTool,
 };
 
-export const TOOL_COMPONENTS = TOOL_MAP;
-
-export const toolComponents = TOOL_MAP;
-
-export function getToolComponent(slug: string): ComponentType | undefined {
-  return TOOL_MAP[slug];
+export function getToolComponent(slug: string): ComponentType | null {
+  return Object.prototype.hasOwnProperty.call(TOOL_COMPONENTS, slug)
+    ? TOOL_COMPONENTS[slug as ToolSlug]
+    : null;
 }
 
-export default TOOL_MAP;
+/* Use from a Server Component page: <ToolRenderer slug={tool.slug} />. */
+export function ToolRenderer({ slug }: { slug: string }) {
+  const Component = getToolComponent(slug);
+  if (!Component) return null;
+  return <Component />;
+}

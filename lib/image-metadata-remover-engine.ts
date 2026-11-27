@@ -663,7 +663,7 @@ async function analyzeWebp(file: Blob): Promise<Analysis> {
   header.set([0x52, 0x49, 0x46, 0x46], 0);
   new DataView(header.buffer).setUint32(4, total + 4, true);
   header.set([0x57, 0x45, 0x42, 0x50], 8);
-  const pieces: Piece[] = [{ start: 0, end: 0, bytes: header }].concat(body);
+  const pieces: Piece[] = [{ start: 0, end: 0, bytes: header }, ...body];
   return { report, pieces, mime: "image/webp" };
 }
 

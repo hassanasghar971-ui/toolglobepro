@@ -28,7 +28,8 @@ import timestampConverterTool from "./timestamp-converter";
 import markdownPreviewerTool from "./markdown-previewer";
 import csvToJsonTool from "./csv-to-json";
 import urlEncoderDecoderTool from "./url-encoder-decoder";
-import imageMetadataRemover from "./image-metadata-remover";
+import imageFormatConverterTool from "./image-format-converter";
+import imageMetadataRemoverTool from "./image-metadata-remover";
 
 export type CategoryWithCount = Category & { count: number };
 export type ToolSlug = string;
@@ -82,7 +83,8 @@ const RAW_TOOLS = [
   markdownPreviewerTool,
   csvToJsonTool,
   urlEncoderDecoderTool,
-  imageMetadataRemover,
+  imageFormatConverterTool,
+  imageMetadataRemoverTool,
 ] as unknown as LooseTool[];
 
 const CATEGORY_ORDER: CategorySlug[] = [
@@ -91,6 +93,8 @@ const CATEGORY_ORDER: CategorySlug[] = [
   "security-tools",
   "network-tools",
   "seo-tools",
+  "converters",
+  "privacy-tools",
 ];
 
 const CATEGORY_BY_SLUG: Record<string, CategorySlug> = {
@@ -112,6 +116,8 @@ const CATEGORY_BY_SLUG: Record<string, CategorySlug> = {
   "markdown-previewer": "developer-tools",
   "csv-to-json": "developer-tools",
   "url-encoder-decoder": "developer-tools",
+  "image-format-converter": "converters",
+  "image-metadata-remover": "privacy-tools",
 };
 
 const CATEGORY_ALIASES: Record<string, CategorySlug> = {
@@ -119,7 +125,9 @@ const CATEGORY_ALIASES: Record<string, CategorySlug> = {
   "text-tools": "text-tools",
   developer: "developer-tools",
   "developer-tools": "developer-tools",
-  converters: "developer-tools",
+  converters: "converters",
+  "privacy-tools": "privacy-tools",
+  privacy: "privacy-tools",
   security: "security-tools",
   "security-tools": "security-tools",
   network: "network-tools",
@@ -186,10 +194,14 @@ const ICON_BY_SLUG: Record<string, IconName> = {
   "markdown-previewer": "file-text",
   "csv-to-json": "code",
   "url-encoder-decoder": "link",
+  "image-format-converter": "refresh",
+  "image-metadata-remover": "eye",
 };
 
 const MAX_FILE_MB_BY_SLUG: Record<string, number> = {
   "image-compressor": 50,
+  "image-format-converter": 100,
+  "image-metadata-remover": 600,
   "csv-to-json": 600,
   "url-encoder-decoder": 600,
   "markdown-previewer": 600,

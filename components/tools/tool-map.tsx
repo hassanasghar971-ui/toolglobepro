@@ -44,13 +44,13 @@ const UrlEncoderDecoderTool = dynamic(
   { loading: () => <ToolSkeleton /> },
 );
 
-const ImageFormatConverterTool = dynamic(() => import("./ImageFormatConverterTool"));
+const ImageMetadataRemoverTool = dynamic(() => import("./ImageMetadataRemoverTool"));
 
 export const TOOL_COMPONENTS: Record<ToolSlug, ComponentType> = {
   "markdown-previewer": MarkdownPreviewerTool,
   "csv-to-json": CsvToJsonTool,
   "url-encoder-decoder": UrlEncoderDecoderTool,
-  "image-format-converter": ImageFormatConverterTool,
+  "image-metadata-remover": ImageMetadataRemoverTool,
 };
 
 export function getToolComponent(slug: string): ComponentType | null {

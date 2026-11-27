@@ -24,33 +24,24 @@ function ToolSkeleton() {
 }
 
 const MarkdownPreviewerTool = dynamic(
-  () =>
-    import("./markdown-previewer/MarkdownPreviewerTool").then(
-      (mod) => mod.MarkdownPreviewerTool,
-    ),
+  () => import("./MarkdownPreviewerTool"),
   { loading: () => <ToolSkeleton /> },
 );
 
 const CsvToJsonTool = dynamic(
-  () => import("./csv-to-json/CsvToJsonTool").then((mod) => mod.CsvToJsonTool),
+  () => import("./CsvToJsonTool"),
   { loading: () => <ToolSkeleton /> },
 );
 
 const UrlEncoderDecoderTool = dynamic(
-  () =>
-    import("./url-encoder-decoder/UrlEncoderDecoderTool").then(
-      (mod) => mod.UrlEncoderDecoderTool,
-    ),
+  () => import("./UrlEncoderDecoderTool"),
   { loading: () => <ToolSkeleton /> },
 );
-
-const ImageMetadataRemoverTool = dynamic(() => import("./ImageMetadataRemoverTool"));
 
 export const TOOL_COMPONENTS: Record<ToolSlug, ComponentType> = {
   "markdown-previewer": MarkdownPreviewerTool,
   "csv-to-json": CsvToJsonTool,
   "url-encoder-decoder": UrlEncoderDecoderTool,
-  "image-metadata-remover": ImageMetadataRemoverTool,
 };
 
 export function getToolComponent(slug: string): ComponentType | null {

@@ -246,7 +246,7 @@ function buildCrcTable(): Uint32Array {
 }
 
 export function crc32(bytes: Uint8Array): number {
-  if (crcTable.length === 0) crcTable = buildCrcTable();
+  if (crcTable.length === 0) crcTable = buildCrcTable() as typeof crcTable;
   let crc = 0xffffffff;
   for (let i = 0; i < bytes.length; i += 1) {
     const index = (crc ^ (bytes[i] ?? 0)) & 0xff;

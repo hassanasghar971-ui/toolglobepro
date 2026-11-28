@@ -25,8 +25,13 @@ const SocialMediaCharacterCounterTool = dynamic(() => import("./SocialMediaChara
   loading: () => <ExtraSkeleton />,
 });
 
+const EmiCalculatorTool = dynamic(() => import("./EmiCalculatorTool"), {
+  loading: () => <ExtraSkeleton />,
+});
+
 export const EXTRA_TOOL_COMPONENTS: Record<string, ComponentType> = {
   "percentage-calculator": PercentageCalculatorTool,
   "pomodoro-timer": PomodoroTimerTool,
   "social-media-character-counter": SocialMediaCharacterCounterTool,
+  "emi-calculator": EmiCalculatorTool,
 };

@@ -4,6 +4,7 @@ import socialMediaCharacterCounterTool from "./social-media-character-counter";
 import emiCalculatorTool from "./emi-calculator";
 import metaTagGeneratorTool from "./meta-tag-generator";
 import browserInfoTool from "./browser-info";
+import textFileSplitterTool from "./text-file-splitter";
 
 export const EXTRA_TOOLS = [
   percentageCalculatorTool,
@@ -12,4 +13,5 @@ export const EXTRA_TOOLS = [
   emiCalculatorTool,
   metaTagGeneratorTool,
   browserInfoTool,
+  textFileSplitterTool,
 ];

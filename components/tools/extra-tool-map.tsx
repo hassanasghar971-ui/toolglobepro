@@ -21,12 +21,7 @@ const PomodoroTimerTool = dynamic(() => import("./PomodoroTimerTool"), {
   loading: () => <ExtraSkeleton />,
 });
 
-const SocialMediaCharacterCounterTool = dynamic(() => import("./SocialMediaCharacterCounterTool"), {
-  loading: () => <ExtraSkeleton />,
-});
-
 export const EXTRA_TOOL_COMPONENTS: Record<string, ComponentType> = {
   "percentage-calculator": PercentageCalculatorTool,
   "pomodoro-timer": PomodoroTimerTool,
-  "social-media-character-counter": SocialMediaCharacterCounterTool,
 };

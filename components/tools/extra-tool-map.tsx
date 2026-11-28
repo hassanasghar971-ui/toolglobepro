@@ -33,10 +33,15 @@ const MetaTagGeneratorTool = dynamic(() => import("./MetaTagGeneratorTool"), {
   loading: () => <ExtraSkeleton />,
 });
 
+const BrowserInfoTool = dynamic(() => import("./BrowserInfoTool"), {
+  loading: () => <ExtraSkeleton />,
+});
+
 export const EXTRA_TOOL_COMPONENTS: Record<string, ComponentType> = {
   "percentage-calculator": PercentageCalculatorTool,
   "pomodoro-timer": PomodoroTimerTool,
   "social-media-character-counter": SocialMediaCharacterCounterTool,
   "emi-calculator": EmiCalculatorTool,
   "meta-tag-generator": MetaTagGeneratorTool,
+  "browser-info": BrowserInfoTool,
 };

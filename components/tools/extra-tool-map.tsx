@@ -37,6 +37,10 @@ const BrowserInfoTool = dynamic(() => import("./BrowserInfoTool"), {
   loading: () => <ExtraSkeleton />,
 });
 
+const TextFileSplitterTool = dynamic(() => import("./TextFileSplitterTool"), {
+  loading: () => <ExtraSkeleton />,
+});
+
 export const EXTRA_TOOL_COMPONENTS: Record<string, ComponentType> = {
   "percentage-calculator": PercentageCalculatorTool,
   "pomodoro-timer": PomodoroTimerTool,
@@ -44,4 +48,5 @@ export const EXTRA_TOOL_COMPONENTS: Record<string, ComponentType> = {
   "emi-calculator": EmiCalculatorTool,
   "meta-tag-generator": MetaTagGeneratorTool,
   "browser-info": BrowserInfoTool,
+  "text-file-splitter": TextFileSplitterTool,
 };

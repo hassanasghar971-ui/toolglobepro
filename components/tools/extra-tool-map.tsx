@@ -29,9 +29,14 @@ const EmiCalculatorTool = dynamic(() => import("./EmiCalculatorTool"), {
   loading: () => <ExtraSkeleton />,
 });
 
+const MetaTagGeneratorTool = dynamic(() => import("./MetaTagGeneratorTool"), {
+  loading: () => <ExtraSkeleton />,
+});
+
 export const EXTRA_TOOL_COMPONENTS: Record<string, ComponentType> = {
   "percentage-calculator": PercentageCalculatorTool,
   "pomodoro-timer": PomodoroTimerTool,
   "social-media-character-counter": SocialMediaCharacterCounterTool,
   "emi-calculator": EmiCalculatorTool,
+  "meta-tag-generator": MetaTagGeneratorTool,
 };

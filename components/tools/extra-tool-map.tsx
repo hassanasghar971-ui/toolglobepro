@@ -5,10 +5,10 @@ import type { ComponentType } from "react";
 
 function ExtraSkeleton() {
   return (
-    <div className="card p-6" aria-busy="true">
-      <div className="h-6 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
-      <div className="mt-4 h-40 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800" />
-      <span className="sr-only">Loading tool…</span>
+    <div className="card animate-pulse p-6" aria-hidden="true">
+      <div className="h-6 w-1/3 rounded bg-slate-200 dark:bg-slate-700" />
+      <div className="mt-4 h-32 w-full rounded bg-slate-200 dark:bg-slate-700" />
+      <div className="mt-4 h-10 w-1/4 rounded bg-slate-200 dark:bg-slate-700" />
     </div>
   );
 }
@@ -21,7 +21,12 @@ const PomodoroTimerTool = dynamic(() => import("./PomodoroTimerTool"), {
   loading: () => <ExtraSkeleton />,
 });
 
+const SocialMediaCharacterCounterTool = dynamic(() => import("./SocialMediaCharacterCounterTool"), {
+  loading: () => <ExtraSkeleton />,
+});
+
 export const EXTRA_TOOL_COMPONENTS: Record<string, ComponentType> = {
   "percentage-calculator": PercentageCalculatorTool,
   "pomodoro-timer": PomodoroTimerTool,
+  "social-media-character-counter": SocialMediaCharacterCounterTool,
 };

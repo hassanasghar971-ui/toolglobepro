@@ -3,6 +3,7 @@ import pomodoroTimerTool from "./pomodoro-timer";
 import socialMediaCharacterCounterTool from "./social-media-character-counter";
 import emiCalculatorTool from "./emi-calculator";
 import metaTagGeneratorTool from "./meta-tag-generator";
+import browserInfoTool from "./browser-info";
 
 export const EXTRA_TOOLS = [
   percentageCalculatorTool,
@@ -10,4 +11,5 @@ export const EXTRA_TOOLS = [
   socialMediaCharacterCounterTool,
   emiCalculatorTool,
   metaTagGeneratorTool,
+  browserInfoTool,
 ];

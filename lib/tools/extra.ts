@@ -5,6 +5,7 @@ import emiCalculatorTool from "./emi-calculator";
 import metaTagGeneratorTool from "./meta-tag-generator";
 import browserInfoTool from "./browser-info";
 import textFileSplitterTool from "./text-file-splitter";
+import whatsappLinkGeneratorTool from "./whatsapp-link-generator";
 
 export const EXTRA_TOOLS = [
   percentageCalculatorTool,
@@ -14,4 +15,5 @@ export const EXTRA_TOOLS = [
   metaTagGeneratorTool,
   browserInfoTool,
   textFileSplitterTool,
+  whatsappLinkGeneratorTool,
 ];
